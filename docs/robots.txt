@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://www.canon-lawyer.ca/sitemap.xml
