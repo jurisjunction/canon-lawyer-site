@@ -52,7 +52,7 @@ def header(active):
     return f"""<a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="/" aria-label="{CONFIG['name']} — home">{MARK}<span><span class="brand-name">Richard Verver, <span style="font-variant:small-caps;letter-spacing:.04em">jcl</span></span><span class="brand-tag">Canon Lawyer</span></span></a>
+    <a class="brand" href="/" aria-label="{CONFIG['name']}, home">{MARK}<span><span class="brand-name">Richard Verver, <span style="font-variant:small-caps;letter-spacing:.04em">jcl</span></span><span class="brand-tag">Canon Lawyer</span></span></a>
     <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
     <nav class="nav" id="site-nav" aria-label="Main">{''.join(links)}</nav>
   </div>
@@ -87,7 +87,7 @@ def footer():
       </div>
     </div>
     <div class="disclaimer">
-      <p>Richard Verver practises canon law — the law of the Catholic Church. Nothing on this site is advice on civil or criminal law; for those matters please consult a lawyer licensed in your jurisdiction. The information here is general and is not advice about your particular situation. Contacting me does not by itself create an advocate–client relationship; that begins only once we agree on it in writing.</p>
+      <p>Richard Verver practises canon law, the law of the Catholic Church. Nothing on this site is advice on civil or criminal law; for those matters please consult a lawyer licensed in your jurisdiction. The information here is general and is not advice about your particular situation. Contacting me does not by itself create an advocate–client relationship; that begins only once we agree on it in writing.</p>
       <p>&copy; {year} Richard Verver. All rights reserved.</p>
     </div>
   </div>
@@ -97,7 +97,7 @@ def person_jsonld():
     data = {
         "@context": "https://schema.org",
         "@type": "LegalService",
-        "name": "Richard Verver, JCL — Canon Lawyer",
+        "name": "Richard Verver, JCL · Canon Lawyer",
         "url": CONFIG["domain"] + "/",
         "image": CONFIG["domain"] + "/assets/img/richard-verver-800.jpg",
         "description": "Canon law advocacy and counsel: marriage nullity cases, penal cases, administrative (hierarchical) recourse, and consulting for dioceses and religious institutes.",
@@ -118,7 +118,7 @@ def person_jsonld():
 
 def layout(meta, body):
     title = meta["title"]
-    full_title = title if meta.get("path") == "/" else f"{title} | Richard Verver, JCL — Canon Lawyer"
+    full_title = title if meta.get("path") == "/" else f"{title} | Richard Verver, JCL · Canon Lawyer"
     desc = meta["description"]
     url = CONFIG["domain"] + meta["path"]
     extra = person_jsonld() if meta["path"] == "/" else ""

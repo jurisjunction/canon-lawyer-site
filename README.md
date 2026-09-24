@@ -1,6 +1,6 @@
 # canon-lawyer.ca
 
-Website for Richard Verver, JCL — Canon Lawyer. Served by GitHub Pages from the `docs/` folder.
+Website for Richard Verver, JCL, Canon Lawyer. Served by GitHub Pages from the `docs/` folder.
 
 ## Editing
 
