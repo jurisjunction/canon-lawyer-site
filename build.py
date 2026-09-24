@@ -9,7 +9,7 @@ Reads page bodies from _src/pages/*.html, wraps each in the shared layout
 which is what GitHub Pages serves. Edit site-wide settings in CONFIG below.
 No dependencies beyond Python 3.
 """
-import datetime, html, json, pathlib, re
+import datetime, html, json, pathlib, re, subprocess
 
 ROOT = pathlib.Path(__file__).parent
 SRC = ROOT / "_src" / "pages"
@@ -94,39 +94,83 @@ def footer():
 </footer>"""
 
 def person_jsonld():
+    d = CONFIG["domain"]
+    person = {
+        "@type": "Person",
+        "@id": d + "/#richard",
+        "name": "Richard Verver",
+        "honorificSuffix": "JCL",
+        "jobTitle": "Canon Lawyer",
+        "url": d + "/about/",
+        "image": d + "/assets/img/richard-verver-800.jpg",
+        "worksFor": {"@id": d + "/#practice"},
+        "alumniOf": [{"@type": "CollegeOrUniversity", "name": "Saint Paul University"}, {"@type": "CollegeOrUniversity", "name": "University of Toronto"}],
+        "memberOf": [{"@type": "Organization", "name": "Canadian Canon Law Society"}, {"@type": "Organization", "name": "Canon Law Society of America"}],
+        "knowsAbout": ["Canon law", "Declaration of nullity", "Catholic annulment", "Canonical penal law", "Hierarchical recourse"],
+        "sameAs": [f"https://x.com/{CONFIG['x_handle']}"],
+    }
+    website = {
+        "@type": "WebSite",
+        "@id": d + "/#website",
+        "url": d + "/",
+        "name": "Richard Verver, JCL",
+        "alternateName": "canon-lawyer.ca",
+        "inLanguage": "en-CA",
+        "publisher": {"@id": d + "/#practice"},
+    }
     data = {
-        "@context": "https://schema.org",
         "@type": "LegalService",
-        "name": "Richard Verver, JCL · Canon Lawyer",
-        "url": CONFIG["domain"] + "/",
+        "@id": d + "/#practice",
+        "name": "Richard Verver, JCL, Canon Lawyer",
+        "url": d + "/",
+        "email": CONFIG["email"],
+        "logo": d + "/assets/img/apple-touch-icon.png",
         "image": CONFIG["domain"] + "/assets/img/richard-verver-800.jpg",
         "description": "Canon law advocacy and counsel: marriage nullity cases, penal cases, administrative (hierarchical) recourse, and consulting for dioceses and religious institutes.",
         "areaServed": [{"@type": "Country", "name": "Canada"}, {"@type": "Country", "name": "United States"}],
         "address": {"@type": "PostalAddress", "addressLocality": "Toronto", "addressRegion": "ON", "addressCountry": "CA"},
-        "founder": {
-            "@type": "Person",
-            "name": "Richard Verver",
-            "honorificSuffix": "JCL",
-            "jobTitle": "Canon Lawyer",
-            "alumniOf": [{"@type": "CollegeOrUniversity", "name": "Saint Paul University"}, {"@type": "CollegeOrUniversity", "name": "University of Toronto"}],
-            "memberOf": [{"@type": "Organization", "name": "Canadian Canon Law Society"}, {"@type": "Organization", "name": "Canon Law Society of America"}],
-            "sameAs": [f"https://x.com/{CONFIG['x_handle']}"],
-        },
-        "knowsAbout": ["Canon law", "Declaration of nullity", "Marriage annulment", "Canonical penal law", "Hierarchical recourse"],
+        "founder": {"@id": d + "/#richard"},
+        "employee": {"@id": d + "/#richard"},
+        "sameAs": [f"https://x.com/{CONFIG['x_handle']}"],
     }
+    graph = {"@context": "https://schema.org", "@graph": [data, person, website]}
+    return '<script type="application/ld+json">' + json.dumps(graph, ensure_ascii=False) + "</script>"
+
+def breadcrumb_jsonld(meta):
+    """Home > (Services >) this page, so Google can show a breadcrumb trail instead of a bare URL."""
+    d = CONFIG["domain"]
+    crumbs = [("Home", "/")]
+    if meta["path"].startswith("/services/") and meta["path"] != "/services/":
+        crumbs.append(("Services", "/services/"))
+    crumbs.append((meta.get("crumb", meta["title"]), meta["path"]))
+    items = [{"@type": "ListItem", "position": i + 1, "name": n, "item": d + p} for i, (n, p) in enumerate(crumbs)]
+    data = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": items}
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>"
+
+def last_modified(path):
+    """Date of the last git commit touching this page's source (falls back to today)."""
+    try:
+        out = subprocess.run(["git", "log", "-1", "--format=%cs", "--", str(path)], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+        return out or datetime.date.today().isoformat()
+    except OSError:
+        return datetime.date.today().isoformat()
 
 def layout(meta, body):
     title = meta["title"]
-    full_title = title if meta.get("path") == "/" else f"{title} | Richard Verver, JCL · Canon Lawyer"
+    full_title = title if meta.get("path") == "/" else f"{title} | Richard Verver, JCL"
     desc = meta["description"]
     url = CONFIG["domain"] + meta["path"]
-    extra = person_jsonld() if meta["path"] == "/" else ""
+    if meta["path"] == "/":
+        extra = person_jsonld()
+    elif meta.get("noindex"):
+        extra = ""
+    else:
+        extra = breadcrumb_jsonld(meta)
     if meta.get("jsonld"):
         extra += meta["jsonld"]
     robots = '<meta name="robots" content="noindex">' if meta.get("noindex") else ""
     return f"""<!doctype html>
-<html lang="en">
+<html lang="en-CA">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -135,10 +179,15 @@ def layout(meta, body):
 <link rel="canonical" href="{url}">
 {robots}
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="Richard Verver, JCL">
+<meta property="og:locale" content="en_CA">
 <meta property="og:title" content="{html.escape(full_title)}">
 <meta property="og:description" content="{html.escape(desc)}">
 <meta property="og:url" content="{url}">
 <meta property="og:image" content="{CONFIG['domain']}/assets/img/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Richard Verver, JCL, Canon Lawyer: marriage nullity, penal advocacy and recourse against Church decrees">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@{CONFIG['x_handle']}">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -175,7 +224,7 @@ def parse(path):
 def redirect_page(target):
     url = CONFIG["domain"] + target
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Redirecting…</title>
-<link rel="canonical" href="{url}"><meta name="robots" content="noindex">
+<link rel="canonical" href="{url}">
 <meta http-equiv="refresh" content="0; url={target}"></head>
 <body><p>This page has moved: <a href="{target}">{url}</a></p></body></html>"""
 
@@ -187,14 +236,13 @@ def main():
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(layout(meta, body), encoding="utf-8")
         if not meta.get("noindex"):
-            pages.append(meta["path"])
+            pages.append((meta["path"], last_modified(p)))
         print("built", dest.relative_to(ROOT))
     for old, new in REDIRECTS.items():
         d = OUT / old.strip("/") / "index.html"
         d.parent.mkdir(parents=True, exist_ok=True)
         d.write_text(redirect_page(new), encoding="utf-8")
-    today = datetime.date.today().isoformat()
-    urls = "".join(f"<url><loc>{CONFIG['domain']}{p}</loc><lastmod>{today}</lastmod></url>" for p in pages)
+    urls = "".join(f"<url><loc>{CONFIG['domain']}{p}</loc><lastmod>{mod}</lastmod></url>" for p, mod in pages)
     (OUT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n')
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {CONFIG['domain']}/sitemap.xml\n")
     (OUT / "CNAME").write_text("www.canon-lawyer.ca\n")
