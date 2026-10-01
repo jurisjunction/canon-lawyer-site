@@ -209,6 +209,19 @@ a.card:hover { border-color: var(--gold); box-shadow: var(--shadow); transform: 
 @media (max-width: 900px) { .steps { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .steps { grid-template-columns: 1fr; gap: 22px; } .steps li { padding: 0 0 0 62px; } }
 
+/* Testimonials */
+.testimonials-band { background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.testimonials-band .section-head { margin-bottom: 18px; }
+.testimonial { margin: 0; }
+.testimonial + .testimonial { margin-top: 44px; padding-top: 44px; border-top: 1px solid var(--line); }
+.testimonial blockquote { margin: 0; font-family: var(--serif); font-size: clamp(1.2rem, 2.1vw, 1.42rem); line-height: 1.55; color: var(--ink); }
+.testimonial blockquote::before { content: "\201C"; display: block; height: .55em; font-size: 4.2rem; line-height: 1; color: var(--gold); }
+.testimonial blockquote p { margin: 0; }
+.testimonial figcaption { margin-top: 18px; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
+.prose .testimonial { margin: 36px 0; padding: 22px 28px 26px; background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: var(--radius); }
+.prose .testimonial blockquote { font-size: 1.2rem; }
+@media (max-width: 560px) { .prose .testimonial { padding: 18px 20px 22px; } }
+
 /* About split */
 .split { display: grid; grid-template-columns: .8fr 1.2fr; gap: 64px; align-items: center; }
 .split .photo { border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); max-width: 380px; }

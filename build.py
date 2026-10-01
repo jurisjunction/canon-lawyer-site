@@ -41,6 +41,38 @@ REDIRECTS = {
     "/areas-of-practice/": "/services/",
 }
 
+# Client testimonials. Add new ones to this list and rebuild.
+#   quote: the client's words.  who: how they are credited (keep it anonymous).
+#   area: the service page it also appears on (nullity, penal, recourse, institutions), or None.
+# {{testimonials}} in a page shows all of them; {{testimonials:penal}} shows only that area's.
+TESTIMONIALS = [
+    {
+        "quote": "I have been very grateful to have Richard Verver as my advocate. Very knowledgeable of the law, thorough in research and application, comprehensive and skilled in explanation. He makes himself available to my needs, listens carefully, incorporates my thoughts and suggestions appropriately. To these skills he adds a personable, friendly and informal approach, which has set me at ease and encouraged me along the way. The work on the case has felt like a genuine partnership, where I have been treated with respect. He loves the Church, but he also values its individual members in their difficulty and their need. I very highly recommend him.",
+        "who": "Client in a canonical penal case",
+        "area": "penal",
+    },
+]
+
+def testimonials_html(area=None):
+    items = [t for t in TESTIMONIALS if area is None or t.get("area") == area]
+    figs = "".join(
+        f'<figure class="testimonial"><blockquote><p>{html.escape(t["quote"])}</p></blockquote>'
+        f'<figcaption>{html.escape(t["who"])}</figcaption></figure>'
+        for t in items
+    )
+    if not figs:
+        return ""
+    if area:
+        return figs
+    return f"""<section class="section testimonials-band">
+  <div class="wrap narrow">
+    <div class="section-head">
+      <p class="eyebrow">In clients’ words</p>
+    </div>
+    {figs}
+  </div>
+</section>"""
+
 MARK = """<svg viewBox="0 0 34 42" aria-hidden="true" focusable="false"><path d="M1 41V17C1 8.2 8.2 1 17 1s16 7.2 16 16v24H1Z" fill="none" stroke="#a8844c" stroke-width="1.5"/><text x="17" y="31" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="17" fill="currentColor">RV</text></svg>"""
 
 def header(active):
@@ -219,6 +251,7 @@ def parse(path):
     body = text[m.end():]
     for k, v in CONFIG.items():
         body = body.replace("{{" + k + "}}", v)
+    body = re.sub(r"\{\{testimonials(?::(\w+))?\}\}", lambda m: testimonials_html(m.group(1)), body)
     return meta, body
 
 def redirect_page(target):
