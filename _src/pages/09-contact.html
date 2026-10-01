@@ -18,6 +18,7 @@ nav: contact
     <input type="hidden" name="_subject" value="New enquiry from canon-lawyer.ca">
     <input type="hidden" name="_template" value="table">
     <input type="hidden" name="_next" value="https://www.canon-lawyer.ca/contact/thanks/">
+    <input type="hidden" name="_captcha" value="false">
     <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
     <div class="form-grid">
       <div>
@@ -59,6 +60,20 @@ nav: contact
         <p class="hint">A few sentences is plenty. Please don’t include sensitive details here. We can discuss those privately once we speak.</p>
       </div>
       <div class="full">
+        <label for="f-found">How did you find me? <span class="opt">(optional)</span></label>
+        <select id="f-found" name="found_via">
+          <option value="">Choose one…</option>
+          <option>Google or another search engine</option>
+          <option>An AI assistant (ChatGPT, Claude, Gemini…)</option>
+          <option>A priest, tribunal or diocese</option>
+          <option>A friend or family member</option>
+          <option>X or other social media</option>
+          <option>Something else</option>
+        </select>
+        <input id="f-found-detail" type="text" name="found_via_detail" aria-label="Anything more about how you found me" placeholder="Anything more? e.g. what you searched for" style="margin-top:10px">
+        <p class="hint">Out of respect for your privacy, this website uses no cookies, analytics or tracking of any kind. That also means I can’t tell how people find me, so your answer here really helps.</p>
+      </div>
+      <div class="full">
         <label class="check"><input type="checkbox" name="acknowledged" value="yes" required> I understand that sending this form does not by itself create an advocate–client relationship.</label>
       </div>
       <div class="full">
@@ -80,6 +95,10 @@ nav: contact
         <li>We book a free call at a time that suits you</li>
         <li>You get honest advice about your options, with no obligation</li>
       </ul>
+    </div>
+    <div class="box">
+      <h3>Your privacy</h3>
+      <p class="small mb-0">No cookies, no analytics, no tracking. Your message reaches my inbox through FormSubmit, a form-to-email service.</p>
     </div>
     <div class="box">
       <h3>Elsewhere</h3>
