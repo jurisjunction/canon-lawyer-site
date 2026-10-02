@@ -115,6 +115,7 @@ def footer():
           <li><a href="#" data-email>Email</a></li>
           <li><a href="https://x.com/{CONFIG['x_handle']}" rel="me noopener">@{CONFIG['x_handle']}</a></li>
           <li><a href="/faq/">Frequently asked questions</a></li>
+          <li><a href="/privacy/">Privacy policy</a></li>
         </ul>
       </div>
     </div>
