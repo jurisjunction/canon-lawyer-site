@@ -119,6 +119,7 @@ def footer():
           <li><a href="/faq/">Frequently asked questions</a></li>
           <li><a href="/explainers/">Explainers</a></li>
           <li><a href="/essays/">Essays</a></li>
+          <li><a href="/reflections/">Biblical reflections</a></li>
           <li><a href="/privacy/">Privacy policy</a></li>
         </ul>
       </div>
@@ -183,6 +184,8 @@ def breadcrumb_jsonld(meta):
         crumbs.append(("Essays", "/essays/"))
     if meta["path"].startswith("/explainers/") and meta["path"] != "/explainers/":
         crumbs.append(("Explainers", "/explainers/"))
+    if meta["path"].startswith("/reflections/") and meta["path"] != "/reflections/":
+        crumbs.append(("Reflections", "/reflections/"))
     crumbs.append((meta.get("crumb", meta["title"]), meta["path"]))
     items = [{"@type": "ListItem", "position": i + 1, "name": n, "item": d + p} for i, (n, p) in enumerate(crumbs)]
     data = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": items}
