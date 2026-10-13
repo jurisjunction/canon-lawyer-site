@@ -346,6 +346,11 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(184,137,63,.
 .essay-list .more { font-weight: 600; margin: 0; }
 .essay-list .more a { text-decoration: none; }
 
+/* Dialogues */
+.prose.dialogue p.line { padding-left: 1.4em; text-indent: -1.4em; }
+.prose.dialogue .sp { font-variant: small-caps; font-weight: 600; letter-spacing: .04em; margin-right: .25em; }
+.prose.dialogue p.stage { font-style: italic; color: var(--muted); }
+
 /* Utility */
 .mt-0 { margin-top: 0; } .mb-0 { margin-bottom: 0; }
 .center { text-align: center; }
