@@ -31,6 +31,7 @@ NAV = [
     ("services", "/services/", "Services"),
     ("about", "/about/", "About"),
     ("faq", "/faq/", "FAQ"),
+    ("explainers", "/explainers/", "Explainers"),
     ("essays", "/essays/", "Essays"),
     ("contact", "/contact/", "Contact"),
 ]
@@ -116,6 +117,7 @@ def footer():
           <li><a href="#" data-email>Email</a></li>
           <li><a href="https://x.com/{CONFIG['x_handle']}" rel="me noopener">@{CONFIG['x_handle']}</a></li>
           <li><a href="/faq/">Frequently asked questions</a></li>
+          <li><a href="/explainers/">Explainers</a></li>
           <li><a href="/essays/">Essays</a></li>
           <li><a href="/privacy/">Privacy policy</a></li>
         </ul>
@@ -179,6 +181,8 @@ def breadcrumb_jsonld(meta):
         crumbs.append(("Services", "/services/"))
     if meta["path"].startswith("/essays/") and meta["path"] != "/essays/":
         crumbs.append(("Essays", "/essays/"))
+    if meta["path"].startswith("/explainers/") and meta["path"] != "/explainers/":
+        crumbs.append(("Explainers", "/explainers/"))
     crumbs.append((meta.get("crumb", meta["title"]), meta["path"]))
     items = [{"@type": "ListItem", "position": i + 1, "name": n, "item": d + p} for i, (n, p) in enumerate(crumbs)]
     data = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": items}
