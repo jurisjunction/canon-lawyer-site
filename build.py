@@ -31,6 +31,7 @@ NAV = [
     ("services", "/services/", "Services"),
     ("about", "/about/", "About"),
     ("faq", "/faq/", "FAQ"),
+    ("essays", "/essays/", "Essays"),
     ("contact", "/contact/", "Contact"),
 ]
 
@@ -115,6 +116,7 @@ def footer():
           <li><a href="#" data-email>Email</a></li>
           <li><a href="https://x.com/{CONFIG['x_handle']}" rel="me noopener">@{CONFIG['x_handle']}</a></li>
           <li><a href="/faq/">Frequently asked questions</a></li>
+          <li><a href="/essays/">Essays</a></li>
           <li><a href="/privacy/">Privacy policy</a></li>
         </ul>
       </div>
@@ -175,9 +177,29 @@ def breadcrumb_jsonld(meta):
     crumbs = [("Home", "/")]
     if meta["path"].startswith("/services/") and meta["path"] != "/services/":
         crumbs.append(("Services", "/services/"))
+    if meta["path"].startswith("/essays/") and meta["path"] != "/essays/":
+        crumbs.append(("Essays", "/essays/"))
     crumbs.append((meta.get("crumb", meta["title"]), meta["path"]))
     items = [{"@type": "ListItem", "position": i + 1, "name": n, "item": d + p} for i, (n, p) in enumerate(crumbs)]
     data = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": items}
+    return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>"
+
+def article_jsonld(meta):
+    """Essay pages: an Article by Richard, so search engines show author and date."""
+    d = CONFIG["domain"]
+    data = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": meta["title"],
+        "description": meta["description"],
+        "url": d + meta["path"],
+        "mainEntityOfPage": d + meta["path"],
+        "inLanguage": "en-CA",
+        "datePublished": meta["date"],
+        "dateModified": meta.get("modified", meta["date"]),
+        "author": {"@type": "Person", "@id": d + "/#richard", "name": "Richard Verver", "url": d + "/about/"},
+        "publisher": {"@id": d + "/#practice"},
+    }
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>"
 
 def last_modified(path):
@@ -201,6 +223,8 @@ def layout(meta, body):
         extra = breadcrumb_jsonld(meta)
     if meta.get("jsonld"):
         extra += meta["jsonld"]
+    if meta.get("kind") == "essay":
+        extra += article_jsonld(meta)
     robots = '<meta name="robots" content="noindex">' if meta.get("noindex") else ""
     return f"""<!doctype html>
 <html lang="en-CA">
@@ -266,6 +290,7 @@ def main():
     pages = []
     for p in sorted(SRC.glob("*.html")):
         meta, body = parse(p)
+        meta["modified"] = last_modified(p)
         dest = OUT / ("404.html" if meta["path"] == "/404" else meta["path"].strip("/") + "/index.html" if meta["path"] != "/" else "index.html")
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(layout(meta, body), encoding="utf-8")
