@@ -10,7 +10,8 @@ Website for Richard Verver, JCL, Canon Lawyer. Served by GitHub Pages from the `
 - Essays are filed on the map of disciplines in `essay_map.py`. Give each essay `field: <slug>` (and, if it touches others, `also: <slug>, <slug>`) and a `summary:` in its comment block. The essays index, the page for each discipline, and each essay's breadcrumb and map links are generated from that file; the build refuses an unknown field or a cycle.
 
 - Every piece of writing (essays, reflections, colloquies, explainers) gets a downloadable PDF next to its page, typeset by `pdfs.py` with [WeasyPrint](https://weasyprint.org) (`pip install weasyprint`). A PDF is rebuilt only when its text changes (hashes in `_src/pdf-manifest.json`). If WeasyPrint is not installed, the build still runs: out-of-date PDFs are not linked (the page offers print to PDF instead) and the build lists them.
-- Essays are dedicated to the public domain under CC0 1.0: the notice, the licence link and the PDF colophon are added by the build. Reflections, colloquies and explainers stay all rights reserved. To exempt an essay, add `license: reserved` to its comment block.
+- Essays and the pages of the homeschool curriculum (`/curriculum/`) are dedicated to the public domain under CC0 1.0: the notice, the licence link and the PDF colophon are added by the build. Reflections, colloquies and explainers stay all rights reserved. To exempt a page, add `license: reserved` to its comment block.
+- The homeschool curriculum walks the same map, one unit page per field (`kind: unit` in its comment block; see `curriculum.py`). The build refuses a year that misses a field or takes one before what it draws on.
 
 After editing, rebuild and commit:
 

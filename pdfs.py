@@ -148,7 +148,7 @@ table.deadlines .days { font-weight: 600; color: #7a2231; white-space: nowrap; }
 def license_html(meta):
     """The licence line: CC0 for the essays, all rights reserved for the rest."""
     if meta.get("license") == "cc0":
-        what = "this essay"
+        what = "this essay" if meta["path"].startswith("/essays/") else "this page"
         return (f'<span class="label">Public domain</span> To the extent possible under law, Richard Verver has waived '
                 f'all copyright and related or neighbouring rights to {what} under '
                 f'<a href="{CC0_URL}">CC0 1.0 Universal</a>. You may copy, change, translate, print and share it, '

@@ -132,7 +132,7 @@ def footer():
     </div>
     <div class="disclaimer">
       <p>Richard Verver practises canon law, the law of the Catholic Church. Nothing on this site is advice on civil or criminal law; for those matters please consult a lawyer licensed in your jurisdiction. The information here is general and is not advice about your particular situation. Contacting me through this site does not create an advocate–client relationship or any duty of confidentiality, and it does not prevent me from representing anyone else. Please do not send confidential details until I have confirmed that I can speak with you about your matter. Once I accept a consultation, what you share is kept strictly confidential and will not be used against you.</p>
-      <p>&copy; {year} Richard Verver. All rights reserved, except the <a href="/essays/">essays</a>, which are dedicated to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+      <p>&copy; {year} Richard Verver. All rights reserved, except the <a href="/essays/">essays</a> and the <a href="/curriculum/">homeschool curriculum</a>, which are dedicated to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
     </div>
   </div>
 </footer>"""
@@ -357,6 +357,9 @@ def main():
         # Every essay is dedicated to the public domain (CC0), unless its comment block says otherwise.
         if meta.get("kind") == "essay" and meta["path"].startswith("/essays/"):
             meta.setdefault("license", "cc0")
+        # So is every page of the homeschool curriculum.
+        if meta["path"].startswith(curriculum.INDEX):
+            meta.setdefault("license", "cc0")
         # A downloadable PDF of every piece of writing (pdfs.py), made from the page as written.
         if pdfs.is_writing(meta):
             pdf = pdfs.make(meta, body, CONFIG["domain"])
@@ -365,7 +368,7 @@ def main():
         if meta.get("kind") == "essay" and meta.get("field"):
             body = body.replace(ESSAY_CRUMBS, essay_map.essay_crumbs(meta), 1)
         if meta.get("license") == "cc0":
-            body += LICENSE_BAND
+            body += LICENSE_BAND if meta["path"].startswith("/essays/") else LICENSE_BAND.replace("this essay", "this page")
         if meta.get("kind") == "essay" and meta.get("field"):
             body += essay_map.essay_nav(meta)
         if meta.get("kind") == "unit":
