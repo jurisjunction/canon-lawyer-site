@@ -1,0 +1,1 @@
+EB Garamond, Greek and extended Greek subsets (Fontsource 5.3.0), used only to typeset the PDFs (pdfs.py), so Greek quotations match the rest of the text. The site's own Latin subsets are in docs/assets/fonts/. Licensed under the SIL Open Font License 1.1 (OFL.txt).

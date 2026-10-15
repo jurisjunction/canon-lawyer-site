@@ -16,4 +16,9 @@
     a.href = 'mailto:' + addr;
     if (a.hasAttribute('data-email-show')) a.textContent = addr;
   });
+
+  // "Print or save as PDF", shown where no PDF has been typeset yet.
+  document.querySelectorAll('[data-print]').forEach(function (b) {
+    b.addEventListener('click', function () { window.print(); });
+  });
 })();

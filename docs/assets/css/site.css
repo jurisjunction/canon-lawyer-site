@@ -386,3 +386,26 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(184,137,63,.
 .map-nav-label { display: inline-block; min-width: 7.5em; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .map-nav-band { padding-top: 0; }
 .map-nav-band .map-nav { margin-bottom: 0; }
+
+/* Download as PDF, and the public-domain notice on essays */
+.essay-tools { margin: 10px 0 0; font-size: .88rem; color: var(--muted); }
+.essay-tools .pdf-link { font: inherit; font-weight: 600; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.essay-tools .pdf-link:hover { color: var(--accent-dark); }
+.essay-tools .pdf-link::before { content: "↓"; display: inline-block; margin-right: 6px; text-decoration: none; }
+.essay-tools .pdf-size { margin-left: 6px; }
+.license-band { padding: 0 0 36px; }
+.license-note { font-size: .92rem; color: var(--ink-2); border-top: 1px solid var(--line); padding-top: 18px; margin: 0; }
+.license-label { font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: .72rem; color: var(--accent); margin-right: 8px; }
+
+/* Printing a page (the fallback when no PDF has been typeset) */
+@media print {
+  .skip, .site-header, .site-footer, .cta-band, .aside .box.dark, .map-nav-band, .essay-tools, .crumbs, .map-figure { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .page-head, .section, .map-band { padding: 0 0 12pt; border: 0; }
+  .article { display: block; padding: 0; }
+  .aside { position: static; }
+  .prose.essay > p { font-size: 11pt; line-height: 1.5; }
+  a { color: inherit; }
+  h2, h3 { break-after: avoid; }
+  p { orphans: 2; widows: 2; }
+}

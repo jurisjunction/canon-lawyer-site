@@ -12,6 +12,7 @@ No dependencies beyond Python 3.
 import datetime, html, json, pathlib, re, subprocess
 
 import essay_map  # the map of disciplines the essays are filed on (essay_map.py)
+import pdfs       # downloadable PDFs of the writing (pdfs.py; typesetting needs WeasyPrint)
 
 ROOT = pathlib.Path(__file__).parent
 SRC = ROOT / "_src" / "pages"
@@ -129,7 +130,7 @@ def footer():
     </div>
     <div class="disclaimer">
       <p>Richard Verver practises canon law, the law of the Catholic Church. Nothing on this site is advice on civil or criminal law; for those matters please consult a lawyer licensed in your jurisdiction. The information here is general and is not advice about your particular situation. Contacting me through this site does not create an advocate–client relationship or any duty of confidentiality, and it does not prevent me from representing anyone else. Please do not send confidential details until I have confirmed that I can speak with you about your matter. Once I accept a consultation, what you share is kept strictly confidential and will not be used against you.</p>
-      <p>&copy; {year} Richard Verver. All rights reserved.</p>
+      <p>&copy; {year} Richard Verver. All rights reserved, except the <a href="/essays/">essays</a>, which are dedicated to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
     </div>
   </div>
 </footer>"""
@@ -215,6 +216,10 @@ def article_jsonld(meta):
         "author": {"@type": "Person", "@id": d + "/#richard", "name": "Richard Verver", "url": d + "/about/"},
         "publisher": {"@id": d + "/#practice"},
     }
+    if meta.get("license") == "cc0":
+        data["license"] = CC0_URL
+    if meta.get("pdf_url"):
+        data["encoding"] = {"@type": "MediaObject", "encodingFormat": "application/pdf", "contentUrl": d + meta["pdf_url"]}
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + "</script>"
 
 def last_modified(path):
@@ -241,6 +246,10 @@ def layout(meta, body):
     if meta.get("kind") == "essay":
         extra += article_jsonld(meta)
     robots = '<meta name="robots" content="noindex">' if meta.get("noindex") else ""
+    if meta.get("license") == "cc0":
+        robots += f'\n<link rel="license" href="{CC0_URL}">'
+    if meta.get("pdf_url"):
+        robots += f'\n<link rel="alternate" type="application/pdf" href="{meta["pdf_url"]}" title="{html.escape(title)} (PDF)">'
     return f"""<!doctype html>
 <html lang="en-CA">
 <head>
@@ -303,6 +312,15 @@ def redirect_page(target):
 
 ESSAY_CRUMBS = '<p class="crumbs"><a href="/essays/">Essays</a></p>'
 
+CC0_URL = "https://creativecommons.org/publicdomain/zero/1.0/"
+LICENSE_BAND = f"""
+<section class="section license-band">
+  <div class="wrap narrow">
+    <p class="license-note"><span class="license-label">Public domain</span> I have dedicated this essay to the public domain under <a href="{CC0_URL}" rel="license">CC0 1.0</a>. Copy it, change it, translate it, print it and share it, for any purpose, without asking. Quotations from other writers keep their own terms.</p>
+  </div>
+</section>
+"""
+
 def write_page(meta, body):
     dest = OUT / ("404.html" if meta["path"] == "/404" else meta["path"].strip("/") + "/index.html" if meta["path"] != "/" else "index.html")
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -326,12 +344,24 @@ def main():
     for p, meta, body in sources:
         if "{{essay_map}}" in body:
             body = body.replace("{{essay_map}}", essay_map.map_section(essays))
+        # Every essay is dedicated to the public domain (CC0), unless its comment block says otherwise.
+        if meta.get("kind") == "essay" and meta["path"].startswith("/essays/"):
+            meta.setdefault("license", "cc0")
+        # A downloadable PDF of every piece of writing (pdfs.py), made from the page as written.
+        if pdfs.is_writing(meta):
+            pdf = pdfs.make(meta, body, CONFIG["domain"])
+            meta["pdf_url"] = pdf["url"] if pdf else None
+            body = pdfs.add_tools(body, pdf)
         if meta.get("kind") == "essay" and meta.get("field"):
             body = body.replace(ESSAY_CRUMBS, essay_map.essay_crumbs(meta), 1)
+        if meta.get("license") == "cc0":
+            body += LICENSE_BAND
+        if meta.get("kind") == "essay" and meta.get("field"):
             body += essay_map.essay_nav(meta)
         write_page(meta, body)
         if not meta.get("noindex"):
             pages.append((meta["path"], meta["modified"]))
+    pdfs.finish()
 
     for f in essay_map.FIELDS:
         meta, body = essay_map.field_page(f["slug"], essays)
