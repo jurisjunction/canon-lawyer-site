@@ -7,6 +7,7 @@ Website for Richard Verver, JCL, Canon Lawyer. Served by GitHub Pages from the `
 - Page content lives in `_src/pages/*.html` (the comment block at the top holds the title, description and URL).
 - Shared header, footer, SEO tags and site settings (email, form endpoint) are in `build.py`.
 - Styles: `docs/assets/css/site.css`. Images: `docs/assets/img/`.
+- Essays are filed on the map of disciplines in `essay_map.py`. Give each essay `field: <slug>` (and, if it touches others, `also: <slug>, <slug>`) and a `summary:` in its comment block. The essays index, the page for each discipline, and each essay's breadcrumb and map links are generated from that file; the build refuses an unknown field or a cycle.
 
 After editing, rebuild and commit:
 

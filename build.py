@@ -11,6 +11,8 @@ No dependencies beyond Python 3.
 """
 import datetime, html, json, pathlib, re, subprocess
 
+import essay_map  # the map of disciplines the essays are filed on (essay_map.py)
+
 ROOT = pathlib.Path(__file__).parent
 SRC = ROOT / "_src" / "pages"
 OUT = ROOT / "docs"
@@ -183,6 +185,9 @@ def breadcrumb_jsonld(meta):
         crumbs.append(("Services", "/services/"))
     if meta["path"].startswith("/essays/") and meta["path"] != "/essays/":
         crumbs.append(("Essays", "/essays/"))
+        if meta.get("field"):
+            f = essay_map.BY_SLUG[meta["field"]]
+            crumbs.append((f["name"], f"/essays/{f['slug']}/"))
     if meta["path"].startswith("/explainers/") and meta["path"] != "/explainers/":
         crumbs.append(("Explainers", "/explainers/"))
     if meta["path"].startswith("/reflections/") and meta["path"] != "/reflections/":
@@ -296,17 +301,44 @@ def redirect_page(target):
 <meta http-equiv="refresh" content="0; url={target}"></head>
 <body><p>This page has moved: <a href="{target}">{url}</a></p></body></html>"""
 
+ESSAY_CRUMBS = '<p class="crumbs"><a href="/essays/">Essays</a></p>'
+
+def write_page(meta, body):
+    dest = OUT / ("404.html" if meta["path"] == "/404" else meta["path"].strip("/") + "/index.html" if meta["path"] != "/" else "index.html")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(layout(meta, body), encoding="utf-8")
+    print("built", dest.relative_to(ROOT))
+
 def main():
     pages = []
+    sources = []
     for p in sorted(SRC.glob("*.html")):
         meta, body = parse(p)
         meta["modified"] = last_modified(p)
-        dest = OUT / ("404.html" if meta["path"] == "/404" else meta["path"].strip("/") + "/index.html" if meta["path"] != "/" else "index.html")
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(layout(meta, body), encoding="utf-8")
+        sources.append((p, meta, body))
+
+    # The essays map: every essay is filed on a field (essay_map.py).
+    essays = [m for _, m, _ in sources if m.get("kind") == "essay" and m["path"].startswith("/essays/")]
+    essay_map.check_graph()
+    essay_map.check_filing(essays)
+    newest_essay = max((m["modified"] for m in essays), default=datetime.date.today().isoformat())
+
+    for p, meta, body in sources:
+        if "{{essay_map}}" in body:
+            body = body.replace("{{essay_map}}", essay_map.map_section(essays))
+        if meta.get("kind") == "essay" and meta.get("field"):
+            body = body.replace(ESSAY_CRUMBS, essay_map.essay_crumbs(meta), 1)
+            body += essay_map.essay_nav(meta)
+        write_page(meta, body)
         if not meta.get("noindex"):
-            pages.append((meta["path"], last_modified(p)))
-        print("built", dest.relative_to(ROOT))
+            pages.append((meta["path"], meta["modified"]))
+
+    for f in essay_map.FIELDS:
+        meta, body = essay_map.field_page(f["slug"], essays)
+        filed = [e["modified"] for e in essays if e.get("field") == f["slug"] or f["slug"] in essay_map._also(e)]
+        meta["modified"] = max(filed, default=newest_essay)
+        write_page(meta, body)
+        pages.append((meta["path"], meta["modified"]))
     for old, new in REDIRECTS.items():
         d = OUT / old.strip("/") / "index.html"
         d.parent.mkdir(parents=True, exist_ok=True)
