@@ -157,8 +157,14 @@ def link_list(slugs):
     return ", ".join(link(s) for s in slugs) if slugs else "nothing on the map yet"
 
 
-def map_svg(counts):
-    """The graph as an inline SVG: nodes link to their pages; empty fields drawn dashed."""
+def map_svg(counts, href=None, label=None, title=None):
+    """The graph as an inline SVG: nodes link to their pages; empty fields drawn dashed.
+
+    href(slug) and label(slug) change where a node links and its small caption, which
+    then replaces the kind of answer (the curriculum draws the same map with its units);
+    a node is dashed only when it has no count and no label of its own."""
+    href = href or (lambda s: f"/essays/{s}/")
+    title = title or "A map of the disciplines: what each draws on, from reading and number to worship"
     W, ROW, BW, BH, TOP = 560, 76, 168, 48, 16
     xs = {0: 98, 1: 280, 2: 462}
     lay = layers()
@@ -168,7 +174,7 @@ def map_svg(counts):
         pos[s] = (xs[COLUMN.get(s, 1)], TOP + lay[s] * ROW)
     H = TOP + (max(lay.values()) + 1) * ROW
     parts = [f'<svg class="map-svg" viewBox="0 0 {W} {H}" role="img" aria-labelledby="map-title">',
-             '<title id="map-title">A map of the disciplines: what each draws on, from reading and number to worship</title>',
+             f'<title id="map-title">{esc(title)}</title>',
              '<defs><marker id="map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
              '<path d="M1 1L9 5L1 9" fill="none" stroke="#a8844c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>']
     for a, b in reduced_edges():
@@ -187,17 +193,17 @@ def map_svg(counts):
     for f in FIELDS:
         s = f["slug"]
         x, y = pos[s]
-        gap = " gap" if not counts.get(s) else ""
+        gap = " gap" if not counts.get(s) and not label else ""
         n = counts.get(s, 0)
-        label = f'{n} essay{"s" if n != 1 else ""}' if n else "a gap"
+        caption = label(s) if label else (f'{n} essay{"s" if n != 1 else ""}' if n else "a gap")
         rect_attrs = ('fill="none" stroke="#c9bda7" stroke-width="1.2" stroke-dasharray="5 4"' if gap
                       else 'fill="#fffdf9" stroke="#ddd4c4" stroke-width="1.2"')
         name_fill = "#5a6273" if gap else "#1c2230"
         parts.append(
-            f'<a class="node{gap}" href="/essays/{s}/" aria-label="{esc(f["name"])}: {esc(f["discipline"])}, {label}">'
+            f'<a class="node{gap}" href="{href(s)}" aria-label="{esc(f["name"])}: {esc(f["discipline"])}, {caption}">'
             f'<rect x="{x - BW / 2}" y="{y}" width="{BW}" height="{BH}" rx="9" {rect_attrs}/>'
             f'<text class="n-name" x="{x}" y="{y + 21}" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="19" fill="{name_fill}">{esc(f["name"])}</text>'
-            f'<text class="n-kind" x="{x}" y="{y + 37}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10.5" letter-spacing=".07em" fill="#5a6273">{esc((f["kind"] + " · " + label).upper())}</text></a>')
+            f'<text class="n-kind" x="{x}" y="{y + 37}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10.5" letter-spacing=".07em" fill="#5a6273">{esc((caption if label else f["kind"] + " · " + caption).upper())}</text></a>')
     parts.append("</svg>")
     return "".join(parts)
 
@@ -282,8 +288,8 @@ def map_section(essays):
 </section>"""
 
 
-def field_page(slug, essays):
-    """The body and meta for /essays/<slug>/."""
+def field_page(slug, essays, extra=""):
+    """The body and meta for /essays/<slug>/. `extra` is HTML set just above the link back to the map."""
     f = BY_SLUG[slug]
     main, also = filed(essays, slug)
     nexts = leads_to(slug)
@@ -314,6 +320,7 @@ def field_page(slug, essays):
     </nav>
     {cards}
     {also_html}
+    {extra}
     <p class="more" style="margin-top:40px"><a href="/essays/">The whole map →</a></p>
   </div>
 </section>

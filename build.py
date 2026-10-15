@@ -12,6 +12,7 @@ No dependencies beyond Python 3.
 import datetime, html, json, pathlib, re, subprocess
 
 import essay_map  # the map of disciplines the essays are filed on (essay_map.py)
+import curriculum  # the homeschool year that walks the same map (curriculum.py)
 import pdfs       # downloadable PDFs of the writing (pdfs.py; typesetting needs WeasyPrint)
 
 ROOT = pathlib.Path(__file__).parent
@@ -124,13 +125,14 @@ def footer():
           <li><a href="/essays/">Essays</a></li>
           <li><a href="/reflections/">Biblical reflections</a></li>
           <li><a href="/colloquies/">Colloquies</a></li>
+          <li><a href="/curriculum/">Homeschool curriculum</a></li>
           <li><a href="/privacy/">Privacy policy</a></li>
         </ul>
       </div>
     </div>
     <div class="disclaimer">
       <p>Richard Verver practises canon law, the law of the Catholic Church. Nothing on this site is advice on civil or criminal law; for those matters please consult a lawyer licensed in your jurisdiction. The information here is general and is not advice about your particular situation. Contacting me through this site does not create an advocate–client relationship or any duty of confidentiality, and it does not prevent me from representing anyone else. Please do not send confidential details until I have confirmed that I can speak with you about your matter. Once I accept a consultation, what you share is kept strictly confidential and will not be used against you.</p>
-      <p>&copy; {year} Richard Verver. All rights reserved, except the <a href="/essays/">essays</a>, which are dedicated to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+      <p>&copy; {year} Richard Verver. All rights reserved, except the <a href="/essays/">essays</a> and the <a href="/curriculum/">homeschool curriculum</a>, which are dedicated to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
     </div>
   </div>
 </footer>"""
@@ -341,11 +343,22 @@ def main():
     essay_map.check_filing(essays)
     newest_essay = max((m["modified"] for m in essays), default=datetime.date.today().isoformat())
 
+    # The homeschool year walks the same map, one unit per field (curriculum.py).
+    units = curriculum.units_of(m for _, m, _ in sources)
+    curriculum.check_units(units)
+
     for p, meta, body in sources:
         if "{{essay_map}}" in body:
             body = body.replace("{{essay_map}}", essay_map.map_section(essays))
+        if "{{curriculum_units}}" in body:
+            body = body.replace("{{curriculum_units}}", curriculum.units_section(units, essays))
+        if meta.get("kind") == "unit":
+            body = curriculum.fill_unit(meta, body)
         # Every essay is dedicated to the public domain (CC0), unless its comment block says otherwise.
         if meta.get("kind") == "essay" and meta["path"].startswith("/essays/"):
+            meta.setdefault("license", "cc0")
+        # So is every page of the homeschool curriculum.
+        if meta["path"].startswith(curriculum.INDEX):
             meta.setdefault("license", "cc0")
         # A downloadable PDF of every piece of writing (pdfs.py), made from the page as written.
         if pdfs.is_writing(meta):
@@ -355,16 +368,18 @@ def main():
         if meta.get("kind") == "essay" and meta.get("field"):
             body = body.replace(ESSAY_CRUMBS, essay_map.essay_crumbs(meta), 1)
         if meta.get("license") == "cc0":
-            body += LICENSE_BAND
+            body += LICENSE_BAND if meta["path"].startswith("/essays/") else LICENSE_BAND.replace("this essay", "this page")
         if meta.get("kind") == "essay" and meta.get("field"):
             body += essay_map.essay_nav(meta)
+        if meta.get("kind") == "unit":
+            body += curriculum.unit_nav(meta, units)
         write_page(meta, body)
         if not meta.get("noindex"):
             pages.append((meta["path"], meta["modified"]))
     pdfs.finish()
 
     for f in essay_map.FIELDS:
-        meta, body = essay_map.field_page(f["slug"], essays)
+        meta, body = essay_map.field_page(f["slug"], essays, curriculum.field_line(f["slug"], units))
         filed = [e["modified"] for e in essays if e.get("field") == f["slug"] or f["slug"] in essay_map._also(e)]
         meta["modified"] = max(filed, default=newest_essay)
         write_page(meta, body)

@@ -409,3 +409,12 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(184,137,63,.
   h2, h3 { break-after: avoid; }
   p { orphans: 2; widows: 2; }
 }
+
+/* The homeschool curriculum (curriculum.py): its tables stack into cards on a phone */
+@media (max-width: 560px) {
+  .curriculum-table thead { display: none; }
+  .curriculum-table, .curriculum-table tbody, .curriculum-table tr { display: block; }
+  .curriculum-table tr { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .curriculum-table td, .curriculum-table td:nth-child(3) { display: block; padding: 3px 0; border: 0; }
+  .curriculum-table td + td::before { content: attr(data-label) " · "; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+}
