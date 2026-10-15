@@ -1,169 +1,268 @@
-// WHETHER THE CLOUD MAKES MANY WORLDS
-// A musical analogue to the disputation of the same name.
-// For Strudel (https://strudel.cc). Paste this in and press play.
-// About three minutes and twenty seconds. It gets very loud once, briefly.
+// ============================================================
+// WHETHER THE CLOUD MAKES MANY WORLDS — the dance mix
+// A disputation, McLuhan presiding · mode VII x deep techno
+// 122 BPM · 132 bars · ~4:20, then it loops
+// For Strudel (https://strudel.cc): paste, press play (Ctrl+Enter).
+// Dedicated to the public domain (CC0 1.0).
 //
-// Dedicated to the public domain (CC0 1.0). The chant melodies are public
-// domain; the pitches are taken from GregoBase transcriptions (CC0).
+// The track is built from its end. The hook is the opening of the
+// Ascension introit, "Viri Galilaei" (Acts 1:11). The intro is that
+// hook BACKWARDS, in fog: Machaut's "Ma fin est mon commencement".
+// The outro plays it forwards. The pulse under everything is the
+// first message ever sent by electric telegraph: WHAT HATH GOD
+// WROUGHT (24 May 1844; Numbers 23:23), tapped in Morse. At the
+// drop that rhythm carries the chant: the medium given back its word.
 //
-// The form is built from its end. The last thing you hear is the opening of
-// the Ascension introit, "Viri Galilaei". The first thing you hear is that
-// same phrase backwards, in fog: Machaut's "Ma fin est mon commencement".
+// TIMELINE (bar / time):
+//   CLOUD     1  0:00  the hook backwards, in fog; the title spoken
+//   HALL     17  0:31  build: "it seems that it does" (the objections)
+//   VOICE    33  1:03  the riser: IT IS ALL MADE OF NOTHING
+//                      ...then one bar of silence
+//   HOREB    41  1:19  three false drops: wind, earthquake, fire
+//   STILL    49  1:34  breakdown: Lumen Christi on a pure tone;
+//                      "seven thousand" brings the heartbeat back
+//   BRIGHT   65  2:06  build: Rorate caeli, G minor; the telegraph
+//                      rings the chant on celesta
+//   TAKEN UP 81  2:37  THE DROP: G mixolydian, the hook rising an
+//                      octave every 8 bars until the bells peal
+//   END     113  3:40  my end is my beginning: the hook forwards
+//   tail    129  4:12  silence for the reverb
+//
+// The spoken lines come from Shabda's text-to-speech and load the
+// first time they play. If they are slow, stop and play again.
+// ============================================================
 
-setcpm(30) // one cycle = two seconds
+setcpm(122/4) // one cycle = one bar
 
-// ---------- the sources ----------
-// Durations in units: a syllable on one note takes 2, notes of a neume take 1,
-// the end of a phrase takes more. "~" is a breath.
+// ---- the spoken lines
+samples('shabda/speech/en-GB/f:whether_the_cloud_makes_many_worlds,it_seems_that_it_does,but_the_lord_was_not_in_the_wind,not_in_the_earthquake,not_in_the_fire,and_after_the_fire_a_still_small_voice,i_even_i_only_am_left,yet_i_have_left_me_seven_thousand,let_the_clouds_rain_down_the_just_one,what_hath_god_wrought,the_darkness_shall_not_overcome_it,the_word_was_made_flesh_and_dwelt_among_us,my_end_is_my_beginning')
+// the Voice: no name, a man, pitched down
+samples('shabda/speech/en-GB/m:nothing,it_is_all_made_of_nothing')
 
-// "Viri Galilaei, quid admiramini" (Acts 1:11), introit for the Ascension, mode 7
+// ============================================================
+// ORBITS: 1 drums · 2 pads and acid (ducked by the kick) ·
+//         3 spoken word · 4 light · 5 sub · 6 fx · 7 choir
+// ============================================================
+
+// ---------------- THE CHANT -----------------------------------
+// eighth-note grid: a syllable on one note = 2, notes of a neume = 1
+// "Viri Galilaei, quid admiramini": two bars
 const VIRI = 'g3@2 g3@2 g3 c4 b3 c4@2 d4 c4 e4 d4 d4@3'
-// the same phrase, end first
+// the same, end first
 const IRIV = 'd4@3 d4 e4 c4 d4 c4@2 b3 c4 g3 g3@2 g3@2'
-// the answer, a fifth above
-const ANSWER = 'd4@2 d4@2 d4 g4 f4 g4@2 a4 g4 b4 a4 a4@3'
-// mode 7 recites on D: the tenor holds it while the answer sings
-const TENOR = 'd4@12 c4@4'
-// two voices above the bass entry
-const ALTO = 'd4@2 d4@2 d4 e4 d4 c4@2 f4 g4 g4 a4 a4@3'
-const TREBLE = 'b4@2 b4@2 b4 c5 d5 e5@2 d5 e5 g5 f5 f5@3'
+// "Rorate caeli desuper, et nubes pluant justum" (Isaiah 45:8),
+// mode 1, raised a fourth into G minor: two four-bar phrases
+const RORATE = 'bb3@3 c4 d4 d4@3 g4@4 f4@3 f4 eb4@2 d4@3 d4@3 c4@4 ~@4 ' +
+               'd4@3 eb4@3 d4@3 c4 bb3 a3@3 bb3 a3 g3@8 ~@8'
+// "Lumen Christi" / "Deo gratias": do do do la, two bars each
+const lumen = (doh, la) => doh + '@2 ' + doh + '@2 ' + doh + '@2 ' + la + '@4 ~@6'
+const gratias = (doh, la) => doh + '@2 ' + doh + '@2 ' + doh + '@2 ' + la + '@2 ' + la + '@4 ~@4'
 
-// "Rorate caeli desuper, et nubes pluant justum" (Isaiah 45:8), Advent, mode 1
-const RORATE = 'f3@2 g3 a3 a3@3 d4@2 c4@2 c4 bb3 a3@2 a3@2 g3@2 ~ ' +
-               'a3@2 bb3@2 a3@2 g3 f3 e3@2 f3 e3 d3@3 ~@5'
+const sing = (phrase, bars) => note(mini(phrase)).slow(bars)
+const hook = (up = 0) => sing(VIRI, 2).transpose(up)
 
-// "Lumen Christi" / "Deo gratias", the Easter Vigil: do do do la, raised each time
-const lumen = (doh, la) => doh + '@2 ' + doh + '@2 ' + doh + '@2 ' + la + '@3 ~'
-const gratias = (doh, la) => doh + '@2 ' + doh + '@2 ' + doh + '@2 ' + la + '@2 ' + la + '@3 ~'
-
-// ---------- the medium ----------
-// The first message sent by electric telegraph, 24 May 1844 (Numbers 23:23).
-// Dot 1 unit, dash 3; 1 between signs, 3 between letters, 7 between words.
+// ---------------- THE TELEGRAPH --------------------------------
+// dot 1 sixteenth, dash 3; 1 between signs, 3 between letters,
+// 7 between words: 189 sixteenths, 50 strokes, ~11.8 bars
 const CODE = { W: '.--', H: '....', A: '.-', T: '-', G: '--.', O: '---', D: '-..', R: '.-.', U: '..-' }
 const morse = (text) => text.split(' ').map((word) =>
   word.split('').map((ch) =>
     CODE[ch].split('').map((sign) => (sign === '.' ? 'x' : 'x@3')).join(' ~ ')
   ).join(' ~@3 ')
 ).join(' ~@7 ')
-const TALEA = morse('WHAT HATH GOD WROUGHT') // 189 units, 50 strokes
-const SPAN = 189 / 16 // one unit = a sixteenth of a cycle
-
-// Isorhythm, the fourteenth century's own device: a rhythm (talea) carries a
-// melody (color), one pitch per stroke. The medium given back its word.
-const pitches = (phrase) => phrase.split(' ').filter((t) => t && t[0] !== '~').map((t) => t.split('@')[0])
+const TALEA = morse('WHAT HATH GOD WROUGHT')
+const SPAN = 189 / 16
+// isorhythm: the rhythm (talea) carries a melody (color), one note per stroke
 const iso = (talea, color) => { let i = 0; return talea.replace(/x/g, () => color[i++ % color.length]) }
-const telegraph = (pitch) => note(mini(iso(TALEA, [pitch]))).slow(SPAN)
-const ringing = (phrase, up) => note(mini(iso(TALEA, pitches(phrase)))).transpose(up).slow(SPAN)
+const pitches = (phrase) => phrase.split(' ').filter((t) => t && t[0] !== '~').map((t) => t.split('@')[0])
+const ring = (color, up) => note(mini(iso(TALEA, color))).transpose(up).slow(SPAN)
+// the introit's own tones, without its leading notes, so the bells never grind on the chords
+const CHANT_TONES = pitches(VIRI).filter((p) => p[0] !== 'b' && p[0] !== 'e')
+const RORATE_TONES = pitches(RORATE).filter((p) => p[0] !== 'a' && !p.startsWith('eb'))
+// the telegraph as percussion: a rimshot key
+const tapping = s(mini(iso(TALEA, ['rim']))).slow(SPAN).bank('RolandTR909')
 
-// a phrase sung over n cycles
-const sing = (phrase, n) => note(mini(phrase)).slow(n)
+// ---------------- FOUNDATION ----------------------------------
+const kick = (cut = 1200) => s("bd*4").bank('RolandTR909')
+  .lpf(cut).shape(.15).gain(.95)
+  .duckorbit(2).duckattack(.3).duckdepth(.5)
+const sub = (roots) => note(roots).struct("[~ x]*4").s('sine')
+  .clip(.5).release(.05).gain(.8).orbit(5)
+const hats = s("[~ hh]*4").bank('RolandTR909').hpf(6000).gain(.22).orbit(1)
+const veil = s("hh*16").bank('RolandTR909').hpf(8000)
+  .gain(sine.fast(4).range(.05, .12)).pan(.62).orbit(1)
+const clap = s("~ cp").bank('RolandTR909').room(.4).gain(.3).orbit(1)
+const riser = (bars) => s("white").seg(8)
+  .gain(saw.slow(bars).range(.01, .22))
+  .lpf(saw.slow(bars).range(300, 7000)).hpf(200)
+  .room(.7).orbit(6)
 
-// ---------- I. The cloud (12 cycles) ----------
-// The ending, backwards, through fog. A telegraph somewhere far off.
-const cloud = stack(
-  arrange([8, sing(IRIV, 8)], [4, silence])
-    .s('gm_voice_oohs').lpf(700).room(0.9).gain(0.35),
-  s('pink').attack(0.8).release(0.8).lpf(600).gain(0.06),
-  arrange([4, silence], [8, telegraph('a5')])
-    .s('sine').hpf(1500).delay(0.5).delaytime(0.375).delayfeedback(0.5).room(0.8).gain(0.03),
-  arrange([8, silence], [4, note("[g2,d3]")])
-    .s('gm_church_organ').attack(2).gain(0.12),
+// ---------------- HARMONY --------------------------------------
+// the mode's own chords, G F C G; and, for Rorate, G minor, ending on D to pull into the drop
+const MIXO = "<[g2,d3,g3,b3] [f2,c3,f3,a3] [c3,g3,c4,e4] [g2,d3,g3,b3]>"
+const MINOR = "<[g2,d3,g3,bb3] [eb2,bb2,eb3,g3] [bb2,f3,bb3,d4] [f2,c3,f3,a3] [eb2,bb2,eb3,g3] [f2,c3,f3,a3] [g2,d3,g3,bb3] [d2,a2,d3,f#3]>"
+const pad = (chords, cut = 900, g = .32) => note(chords)
+  .s('sawtooth').attack(.6).release(1.2)
+  .lpf(cut).gain(g).room(.5).roomsize(4).orbit(2)
+const acid = note("<[g2 ~ g2 g3 ~ g2 d3 ~] [f2 ~ f2 f3 ~ f2 c3 ~] [c3 ~ c3 c4 ~ c3 g3 ~] [g2 ~ g2 g3 ~ b2 d3 ~]>")
+  .s('sawtooth').lpf(500).lpq(10).lpenv(4).lpd(.12)
+  .decay(.15).sustain(.2).gain(.3).orbit(2)
+const lux = note("[g5,d6]").slow(4)
+  .s('sine').attack(3).release(4).gain(.14).hpf(1200)
+  .pan(sine.slow(24).range(.3, .7))
+  .room(1).roomsize(6).orbit(4)
+// the peal: prime periods, never repeating (2, 3, 5, 7, 11, 13, 17 beats),
+// all on tones that sit on every chord of the drop
+const peal = stack(
+  note("g2").slow(17/4).gain(.7).pan(.5),
+  note("d3").slow(13/4).gain(.55).pan(.38),
+  note("g3").slow(11/4).gain(.5).pan(.62),
+  note("c4").slow(7/4).gain(.45).pan(.3),
+  note("d4").slow(5/4).gain(.4).pan(.7),
+  note("g4").slow(3/4).gain(.34).pan(.42),
+  note("a4").slow(1/2).gain(.28).pan(.58),
+).s('gm_tubular_bells').room(.8).roomsize(6).orbit(6)
+
+// ---------------- VOICES ---------------------------------------
+const vox = (p) => s(p).speed(.94)
+  .hpf(160).lpf(8000).gain(1.1)
+  .delay(".18:.37:.35")
+  .pan(sine.slow(16).range(.42, .58))
+  .room(.2).orbit(3)
+const choir = (p, g = .38) => p.s('gm_choir_aahs')
+  .attack(.05).release(.6).room(.6).roomsize(5).gain(g).orbit(7)
+
+// ============================================================
+// SECTIONS
+// ============================================================
+
+// I. THE CLOUD: the end, first, backwards
+const secCLOUD = stack(
+  s("pink").attack(1).release(1).lpf(500).gain(.05).orbit(6),
+  sing(IRIV, 8).s('gm_voice_oohs')
+    .lpf(saw.slow(16).range(400, 1600)).room(.9).roomsize(6).gain(.35).orbit(7),
+  tapping.gain(.1).hpf(1500).delay(".5:.375:.5").room(.6).orbit(6).mask("<0!4 1!12>"),
+  kick(saw.slow(16).range(250, 900)),
+  sub("<g1>").mask("<0!12 1!4>"),
+  vox("<whether_the_cloud_makes_many_worlds ~!15>"),
 )
 
-// ---------- II. The hall (16 cycles) ----------
-// A fugato on the introit: the subject over a drone, the answer over the held
-// tenor, then the bass with two voices above it.
-const hall = stack(
-  arrange([4, note("[g2,d3]")], [12, silence]).s('gm_church_organ').gain(0.15),
-  arrange([4, sing(VIRI, 4)], [4, sing(TENOR, 4)], [4, sing(ALTO, 4)], [4, sing('c5 b4', 4)])
-    .s('gm_choir_aahs').room(0.6).gain(0.4),
-  arrange([4, silence], [4, sing(ANSWER, 4)], [4, sing(TREBLE, 4)], [4, sing('e5 d5', 4)])
-    .s('gm_choir_aahs').room(0.6).gain(0.32),
-  arrange([8, silence], [4, sing(VIRI, 4).transpose(-12)], [4, sing('c3 g2', 4)])
-    .s('gm_church_organ').gain(0.3),
-  arrange([8, silence], [4, telegraph('a5').gain(0.05)], [4, telegraph('a5').gain(0.1)])
-    .s('sine').room(0.3),
+// II. THE HALL: the objections, in organum at the fourth (as in the Musica enchiriadis)
+const secHALL = stack(
+  kick("<700!8 1600!8>"),
+  sub("<g1 f1 c2 g1>"),
+  hats.mask("<0!4 1!12>"),
+  tapping.gain(.16).orbit(1),
+  pad(MIXO, saw.slow(16).range(500, 1600)),
+  choir(hook(0)),
+  choir(hook(5), .26).mask("<0!8 1!8>"),
+  acid.mask("<0!8 1!8>"),
+  vox("<it_seems_that_it_does ~ ~ ~>"),
 )
 
-// ---------- III. The Voice (4 cycles) ----------
-// No name. Fortissimo. Then nothing at all.
-const voice = arrange(
-  [2, stack(
-    s('white').gain(0.6),
-    s('crackle').density(0.6).gain(0.45),
-    note("[g2,ab2,a2,bb2,b2,c3,db3]").s('sawtooth').distort(2).gain(0.1),
+// III. THE VOICE: fortissimo, no name. Then nothing at all.
+const secVOICE = arrange(
+  [7, stack(
+    kick(2400).mask("<1!4 0!3>"),
+    sub("<g1 f1 c2 g1>").mask("<1!4 0!3>"),
+    pad(MIXO, saw.slow(7).range(1600, 5000)),
+    riser(7),
+    s("sd*<4 4 8 8 16 32 32>").bank('RolandTR909').gain(saw.slow(7).range(.12, .45)).orbit(1),
+    s("<~ ~ ~ ~ nothing ~ it_is_all_made_of_nothing>")
+      .speed(.8).distort(1.5).hpf(80).gain(1.3).room(.3).orbit(3),
+    s("white").gain(.5).mask("<0!6 1>").orbit(6),
+    note("[g2,ab2,a2,bb2,b2,c3,db3]").s('sawtooth').distort(2).gain(.1).mask("<0!6 1>").orbit(6),
   )],
-  [2, silence],
-)
-
-// ---------- IV. Horeb (12 cycles) ----------
-// "But the LORD was not in the wind ... not in the earthquake ... not in the fire."
-const horeb = arrange(
-  [3, s('wind').n("<0 4 7>").gain(0.4).room(0.4)],
-  [1, silence],
-  [3, stack(s('brown').lpf(140).gain(0.4), note('g1').s('sawtooth').lpf(90).gain(0.3))],
-  [1, silence],
-  [3, s('crackle').density(0.25).hpf(800).gain(0.35)],
   [1, silence],
 )
 
-// ---------- V. A still small voice (12 cycles) ----------
-// A pure tone, the thinnest medium there is. The people answer, three times,
-// each time a step higher.
-const still = stack(
+// IV. HOREB: "but the LORD was not in the wind..."
+const secHOREB = arrange(
+  [2, stack(s("wind").n("<0 4>").gain(.4).room(.4).orbit(6),
+            vox("<but_the_lord_was_not_in_the_wind ~>"))],
+  [2, stack(s("brown").lpf(140).gain(.4).orbit(6),
+            s("bd").bank('RolandTR909').speed(.4).lpf(200).gain(.9).orbit(5),
+            vox("<not_in_the_earthquake ~>"))],
+  [2, stack(s("crackle").density(.25).hpf(800).gain(.35).orbit(6),
+            vox("<not_in_the_fire ~>"))],
+  [2, vox("<~ and_after_the_fire_a_still_small_voice>").gain(.7)],
+)
+
+// V. A STILL SMALL VOICE: a pure tone, three times, a step higher
+// each time; the people answer. Then Elijah's correction, and the
+// heartbeat comes back: the bonds were never cut.
+const secSTILL = stack(
   arrange(
     [2, sing(lumen('d4', 'b3'), 2)], [2, silence],
     [2, sing(lumen('e4', 'c#4'), 2)], [2, silence],
-    [2, sing(lumen('f4', 'd4'), 2)], [2, silence],
-  ).s('sine').attack(0.05).release(0.6).room(0.7).gain(0.22),
-  arrange(
+    [2, sing(lumen('f4', 'd4'), 2)], [6, silence],
+  ).s('sine').attack(.05).release(.6).room(.8).roomsize(6).gain(.25).orbit(4),
+  choir(arrange(
     [2, silence], [2, sing(gratias('d4', 'b3'), 2)],
     [2, silence], [2, sing(gratias('e4', 'c#4'), 2)],
     [2, silence], [2, sing(gratias('f4', 'd4'), 2)],
-  ).s('gm_voice_oohs').room(0.7).gain(0.22),
+    [4, silence],
+  ), .3),
+  s("pink").attack(1).release(1).lpf(400).gain(.03).orbit(6),
+  kick(200).mask("<0!12 1!4>"),
+  vox("<~!12 i_even_i_only_am_left ~ yet_i_have_left_me_seven_thousand ~>"),
 )
 
-// ---------- VI. A bright cloud (16 cycles) ----------
-// "Drop down, ye heavens, and let the clouds rain down the Just One."
-// The telegraph's rhythm now carries the chant.
-const bright = stack(
-  note("[d2,a2]").s('gm_church_organ').gain(0.14),
-  sing(RORATE, 8).s('gm_choir_aahs').room(0.6).gain(0.38),
-  arrange([4, silence], [12, ringing(RORATE, 24)])
-    .s('gm_celesta').room(0.8).gain(0.18),
-  note("[d4,a4]").s('gm_pad_halo').lpf(saw.range(500, 3000).slow(16)).gain(0.1),
+// VI. A BRIGHT CLOUD: "drop down, ye heavens"; the telegraph rings the chant
+const secBRIGHT = stack(
+  pad(MINOR, saw.slow(16).range(400, 2200)),
+  choir(sing(RORATE, 8), .4),
+  ring(RORATE_TONES, 12).s('gm_celesta')
+    .room(.7).gain(.18).orbit(6).mask("<0!4 1!12>"),
+  kick(saw.slow(8).range(300, 3000)).mask("<0!8 1!8>"),
+  sub("<g1 eb1 bb1 f1 eb1 f1 g1 d1>").mask("<0!8 1!8>"),
+  hats.mask("<0!12 1!4>"),
+  riser(4).mask("<0!12 1!4>"),
+  vox("<let_the_clouds_rain_down_the_just_one ~!7 what_hath_god_wrought ~!7>"),
 )
 
-// ---------- VII. Taken up (12 cycles) ----------
-// "There appeared a chariot of fire ... and Elijah went up by a whirlwind."
-// The introit rises an octave at each entry; the bells carry it on the telegraph.
-const takenUp = stack(
-  note("[g1,g2]").s('gm_church_organ').gain(0.18),
-  arrange([4, sing(VIRI, 4).transpose(-12)], [8, note('d3')])
-    .s('gm_church_organ').gain(0.28),
-  arrange([4, silence], [4, sing(VIRI, 4)], [4, note('d4')])
-    .s('gm_choir_aahs').room(0.6).gain(0.36),
-  arrange([8, silence], [4, sing(VIRI, 4).transpose(12)])
-    .s('gm_choir_aahs').room(0.6).gain(0.4),
-  ringing(VIRI, 12).s('gm_tubular_bells').room(0.7).gain(0.16),
+// VII. TAKEN UP: the drop. "There appeared a chariot of fire...
+// and Elijah went up by a whirlwind into heaven." The hook rises.
+const secTAKEN = stack(
+  kick(4000), sub("<g1 f1 c2 g1>"), clap, hats, veil,
+  pad(MIXO, 2000, .3), acid, lux,
+  arrange(
+    [8, choir(hook(0), .42)],
+    [8, stack(choir(hook(12), .4), choir(hook(17), .26))],
+    [8, stack(choir(hook(12), .4),
+              hook(24).s('sawtooth').attack(.02).release(.3).lpf(3000).gain(.15).orbit(7))],
+    [8, stack(choir(hook(12), .4),
+              hook(24).s('sawtooth').attack(.02).release(.3).lpf(3500).gain(.15).orbit(7),
+              hook(24).s('gm_tubular_bells').room(.8).gain(.3).orbit(6),
+              peal)],
+  ),
+  ring(CHANT_TONES, 12).s('gm_tubular_bells').room(.7).gain(.16).orbit(6).mask("<0!16 1!16>"),
+  vox("<the_darkness_shall_not_overcome_it ~!11 the_word_was_made_flesh_and_dwelt_among_us ~!3 the_darkness_shall_not_overcome_it ~!15>"),
 )
 
-// ---------- VIII. My end is my beginning (16 cycles) ----------
-// The opening phrase, forward and clear. Then the open fifth.
-const end = stack(
-  arrange([8, note("[g2,d3]")], [8, silence]).s('gm_church_organ').gain(0.12),
-  arrange([8, sing(VIRI, 8)], [8, silence]).s('gm_voice_oohs').room(0.7).gain(0.38),
-  arrange([8, silence], [8, note("[g2,d3,g3,d4]")])
-    .s('gm_church_organ').gain("<0.3 0.27 0.24 0.2 0.16 0.12 0.08 0.04>"),
+// VIII. MY END IS MY BEGINNING: the hook forwards; the open fifth
+const secEND = stack(
+  kick("<1200!4 800!4 400!4>").mask("<1!12 0!4>"),
+  sub("<g1>").mask("<1!8 0!8>"),
+  hats.mask("<1!4 0!12>"),
+  arrange([8, sing(VIRI, 8)], [8, silence]).s('gm_voice_oohs').room(.9).roomsize(6).gain(.38).orbit(7),
+  note("[g2,d3,g3,d4]").s('sawtooth').attack(2).release(3).lpf(900)
+    .gain("<0!8 .3 .27 .24 .2 .16 .12 .08 .04>").room(.5).roomsize(4).orbit(2),
+  lux,
+  vox("<~!8 my_end_is_my_beginning ~!7>"),
 )
 
+// ============================================================
+// THE ARRANGEMENT
+// ============================================================
 arrange(
-  [12, cloud],
-  [16, hall],
-  [4, voice],
-  [12, horeb],
-  [12, still],
-  [16, bright],
-  [12, takenUp],
-  [16, end],
+  [16, secCLOUD],
+  [16, secHALL],
+  [8,  secVOICE],
+  [8,  secHOREB],
+  [16, secSTILL],
+  [16, secBRIGHT],
+  [32, secTAKEN],
+  [16, secEND],
+  [4,  silence],
 )
