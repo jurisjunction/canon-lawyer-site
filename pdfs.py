@@ -1,5 +1,5 @@
 """
-Downloadable PDFs of the writing: essays, biblical reflections, colloquies and explainers.
+Downloadable PDFs of the writing: essays, biblical reflections, colloquies, explainers and the curriculum.
 
 build.py calls make(meta, body) for each writing page, then add_tools() to put the
 download link under the byline. The PDF is typeset with WeasyPrint when it is
@@ -23,7 +23,8 @@ FONTS = OUT / "assets" / "fonts"          # the site's own (Latin) fonts
 PDF_FONTS = ROOT / "_src" / "fonts"       # Greek subsets, for the PDFs only
 TEMPLATE_VERSION = 3  # bump to rebuild every PDF after changing the template
 
-SECTIONS = {"essays": "Essay", "reflections": "Biblical reflection", "colloquies": "Colloquy", "explainers": "Explainer"}
+SECTIONS = {"essays": "Essay", "reflections": "Biblical reflection", "colloquies": "Colloquy", "explainers": "Explainer",
+            "curriculum": "Homeschool curriculum"}
 CC0_URL = "https://creativecommons.org/publicdomain/zero/1.0/"
 
 try:

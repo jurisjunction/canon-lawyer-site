@@ -12,6 +12,7 @@ No dependencies beyond Python 3.
 import datetime, html, json, pathlib, re, subprocess
 
 import essay_map  # the map of disciplines the essays are filed on (essay_map.py)
+import curriculum  # the homeschool year that walks the same map (curriculum.py)
 import pdfs       # downloadable PDFs of the writing (pdfs.py; typesetting needs WeasyPrint)
 
 ROOT = pathlib.Path(__file__).parent
@@ -124,6 +125,7 @@ def footer():
           <li><a href="/essays/">Essays</a></li>
           <li><a href="/reflections/">Biblical reflections</a></li>
           <li><a href="/colloquies/">Colloquies</a></li>
+          <li><a href="/curriculum/">Homeschool curriculum</a></li>
           <li><a href="/privacy/">Privacy policy</a></li>
         </ul>
       </div>
@@ -341,9 +343,17 @@ def main():
     essay_map.check_filing(essays)
     newest_essay = max((m["modified"] for m in essays), default=datetime.date.today().isoformat())
 
+    # The homeschool year walks the same map, one unit per field (curriculum.py).
+    units = curriculum.units_of(m for _, m, _ in sources)
+    curriculum.check_units(units)
+
     for p, meta, body in sources:
         if "{{essay_map}}" in body:
             body = body.replace("{{essay_map}}", essay_map.map_section(essays))
+        if "{{curriculum_units}}" in body:
+            body = body.replace("{{curriculum_units}}", curriculum.units_section(units, essays))
+        if meta.get("kind") == "unit":
+            body = curriculum.fill_unit(meta, body)
         # Every essay is dedicated to the public domain (CC0), unless its comment block says otherwise.
         if meta.get("kind") == "essay" and meta["path"].startswith("/essays/"):
             meta.setdefault("license", "cc0")
@@ -358,13 +368,15 @@ def main():
             body += LICENSE_BAND
         if meta.get("kind") == "essay" and meta.get("field"):
             body += essay_map.essay_nav(meta)
+        if meta.get("kind") == "unit":
+            body += curriculum.unit_nav(meta, units)
         write_page(meta, body)
         if not meta.get("noindex"):
             pages.append((meta["path"], meta["modified"]))
     pdfs.finish()
 
     for f in essay_map.FIELDS:
-        meta, body = essay_map.field_page(f["slug"], essays)
+        meta, body = essay_map.field_page(f["slug"], essays, curriculum.field_line(f["slug"], units))
         filed = [e["modified"] for e in essays if e.get("field") == f["slug"] or f["slug"] in essay_map._also(e)]
         meta["modified"] = max(filed, default=newest_essay)
         write_page(meta, body)
