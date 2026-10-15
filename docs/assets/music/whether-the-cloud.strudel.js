@@ -101,12 +101,12 @@ const riser = (bars) => s("white").seg(8)
 // the mode's own chords, G F C G; and, for Rorate, G minor, ending on D to pull into the drop
 const MIXO = "<[g2,d3,g3,b3] [f2,c3,f3,a3] [c3,g3,c4,e4] [g2,d3,g3,b3]>"
 const MINOR = "<[g2,d3,g3,bb3] [eb2,bb2,eb3,g3] [bb2,f3,bb3,d4] [f2,c3,f3,a3] [eb2,bb2,eb3,g3] [f2,c3,f3,a3] [g2,d3,g3,bb3] [d2,a2,d3,f#3]>"
-const pad = (chords, cut = 900, g = .32) => note(chords)
+const pad = (chords, cut = 900, g = .12) => note(chords)
   .s('sawtooth').attack(.6).release(1.2)
   .lpf(cut).gain(g).room(.5).roomsize(4).orbit(2)
 const acid = note("<[g2 ~ g2 g3 ~ g2 d3 ~] [f2 ~ f2 f3 ~ f2 c3 ~] [c3 ~ c3 c4 ~ c3 g3 ~] [g2 ~ g2 g3 ~ b2 d3 ~]>")
   .s('sawtooth').lpf(500).lpq(10).lpenv(4).lpd(.12)
-  .decay(.15).sustain(.2).gain(.3).orbit(2)
+  .decay(.15).sustain(.2).gain(.22).orbit(2)
 const lux = note("[g5,d6]").slow(4)
   .s('sine').attack(3).release(4).gain(.14).hpf(1200)
   .pan(sine.slow(24).range(.3, .7))
@@ -121,16 +121,17 @@ const peal = stack(
   note("d4").slow(5/4).gain(.4).pan(.7),
   note("g4").slow(3/4).gain(.34).pan(.42),
   note("a4").slow(1/2).gain(.28).pan(.58),
-).s('gm_tubular_bells').room(.8).roomsize(6).orbit(6)
+).s('gm_tubular_bells').postgain(2).room(.8).roomsize(6).orbit(6)
 
 // ---------------- VOICES ---------------------------------------
 const vox = (p) => s(p).speed(.94)
-  .hpf(160).lpf(8000).gain(1.1)
+  .hpf(160).lpf(8000).gain(1.5)
   .delay(".18:.37:.35")
   .pan(sine.slow(16).range(.42, .58))
   .room(.2).orbit(3)
+// Strudel plays soundfonts at 0.3 of their gain, so the choir is lifted to sit with the synths
 const choir = (p, g = .38) => p.s('gm_choir_aahs')
-  .attack(.05).release(.6).room(.6).roomsize(5).gain(g).orbit(7)
+  .attack(.05).release(.6).room(.6).roomsize(5).gain(g * 3).orbit(7)
 
 // ============================================================
 // SECTIONS
@@ -140,8 +141,8 @@ const choir = (p, g = .38) => p.s('gm_choir_aahs')
 const secCLOUD = stack(
   s("pink").attack(1).release(1).lpf(500).gain(.05).orbit(6),
   sing(IRIV, 8).s('gm_voice_oohs')
-    .lpf(saw.slow(16).range(400, 1600)).room(.9).roomsize(6).gain(.35).orbit(7),
-  tapping.gain(.1).hpf(1500).delay(".5:.375:.5").room(.6).orbit(6).mask("<0!4 1!12>"),
+    .lpf(saw.slow(16).range(400, 1600)).room(.9).roomsize(6).gain(1).orbit(7),
+  tapping.gain(.12).hpf(1500).delay(".5:.375:.5").room(.6).orbit(6).mask("<0!4 1!12>"),
   kick(saw.slow(16).range(250, 900)),
   sub("<g1>").mask("<0!12 1!4>"),
   vox("<whether_the_cloud_makes_many_worlds ~!15>"),
@@ -169,7 +170,7 @@ const secVOICE = arrange(
     riser(7),
     s("sd*<4 4 8 8 16 32 32>").bank('RolandTR909').gain(saw.slow(7).range(.12, .45)).orbit(1),
     s("<~ ~ ~ ~ nothing ~ it_is_all_made_of_nothing>")
-      .speed(.8).distort(1.5).hpf(80).gain(1.3).room(.3).orbit(3),
+      .speed(.8).distort(1.5).hpf(80).gain(2).room(.3).orbit(3),
     s("white").gain(.5).mask("<0!6 1>").orbit(6),
     note("[g2,ab2,a2,bb2,b2,c3,db3]").s('sawtooth').distort(2).gain(.1).mask("<0!6 1>").orbit(6),
   )],
@@ -185,7 +186,7 @@ const secHOREB = arrange(
             vox("<not_in_the_earthquake ~>"))],
   [2, stack(s("crackle").density(.25).hpf(800).gain(.35).orbit(6),
             vox("<not_in_the_fire ~>"))],
-  [2, vox("<~ and_after_the_fire_a_still_small_voice>").gain(.7)],
+  [2, vox("<~ and_after_the_fire_a_still_small_voice>").gain(1)],
 )
 
 // V. A STILL SMALL VOICE: a pure tone, three times, a step higher
@@ -213,7 +214,7 @@ const secBRIGHT = stack(
   pad(MINOR, saw.slow(16).range(400, 2200)),
   choir(sing(RORATE, 8), .4),
   ring(RORATE_TONES, 12).s('gm_celesta')
-    .room(.7).gain(.18).orbit(6).mask("<0!4 1!12>"),
+    .room(.7).gain(.4).orbit(6).mask("<0!4 1!12>"),
   kick(saw.slow(8).range(300, 3000)).mask("<0!8 1!8>"),
   sub("<g1 eb1 bb1 f1 eb1 f1 g1 d1>").mask("<0!8 1!8>"),
   hats.mask("<0!12 1!4>"),
@@ -225,7 +226,7 @@ const secBRIGHT = stack(
 // and Elijah went up by a whirlwind into heaven." The hook rises.
 const secTAKEN = stack(
   kick(4000), sub("<g1 f1 c2 g1>"), clap, hats, veil,
-  pad(MIXO, 2000, .3), acid, lux,
+  pad(MIXO, 2000, .12), acid, lux,
   arrange(
     [8, choir(hook(0), .42)],
     [8, stack(choir(hook(12), .4), choir(hook(17), .26))],
@@ -233,10 +234,10 @@ const secTAKEN = stack(
               hook(24).s('sawtooth').attack(.02).release(.3).lpf(3000).gain(.15).orbit(7))],
     [8, stack(choir(hook(12), .4),
               hook(24).s('sawtooth').attack(.02).release(.3).lpf(3500).gain(.15).orbit(7),
-              hook(24).s('gm_tubular_bells').room(.8).gain(.3).orbit(6),
+              hook(24).s('gm_tubular_bells').room(.8).gain(.6).orbit(6),
               peal)],
   ),
-  ring(CHANT_TONES, 12).s('gm_tubular_bells').room(.7).gain(.16).orbit(6).mask("<0!16 1!16>"),
+  ring(CHANT_TONES, 12).s('gm_tubular_bells').room(.7).gain(.35).orbit(6).mask("<0!16 1!16>"),
   vox("<the_darkness_shall_not_overcome_it ~!11 the_word_was_made_flesh_and_dwelt_among_us ~!3 the_darkness_shall_not_overcome_it ~!15>"),
 )
 
@@ -245,7 +246,7 @@ const secEND = stack(
   kick("<1200!4 800!4 400!4>").mask("<1!12 0!4>"),
   sub("<g1>").mask("<1!8 0!8>"),
   hats.mask("<1!4 0!12>"),
-  arrange([8, sing(VIRI, 8)], [8, silence]).s('gm_voice_oohs').room(.9).roomsize(6).gain(.38).orbit(7),
+  arrange([8, sing(VIRI, 8)], [8, silence]).s('gm_voice_oohs').room(.9).roomsize(6).gain(1.1).orbit(7),
   note("[g2,d3,g3,d4]").s('sawtooth').attack(2).release(3).lpf(900)
     .gain("<0!8 .3 .27 .24 .2 .16 .12 .08 .04>").room(.5).roomsize(4).orbit(2),
   lux,
