@@ -347,6 +347,8 @@ MUSIC_NOTES = {
     ".mp3": "a recording of the score (MP3)",
     ".ogg": "a recording of the score (Ogg Vorbis)",
     ".flac": "a recording of the score (lossless FLAC)",
+    ".mp4": "the video (MP4)",
+    ".jpg": "the video's poster frame",
 }
 
 def llms_txt(entries):
