@@ -329,8 +329,73 @@ def write_page(meta, body):
     dest.write_text(layout(meta, body), encoding="utf-8")
     print("built", dest.relative_to(ROOT))
 
+# IndexNow (indexnow.org): this key, served at /<key>.txt, lets the site tell Bing, Yandex, Naver,
+# Seznam and Yep at once when a page is new or changed. It is a public token, not a secret.
+INDEXNOW_KEY = "c9e1f4a27b6d4e8fb0d35a1c62e79b84"
+
+# llms.txt (llmstxt.org): a plain map of the site for language models and the tools that read for them.
+LLMS_GROUPS = [
+    ("Essays", "/essays/"),
+    ("Reflections", "/reflections/"),
+    ("Colloquies", "/colloquies/"),
+    ("Explainers", "/explainers/"),
+    ("Homeschool curriculum", "/curriculum/"),
+]
+LLMS_CORE = ["/", "/services/", "/about/", "/faq/", "/contact/"]
+MUSIC_NOTES = {
+    ".strudel.js": "the score, as code: paste it into https://strudel.cc and press play",
+    ".mp3": "a recording of the score (MP3)",
+    ".ogg": "a recording of the score (Ogg Vorbis)",
+    ".flac": "a recording of the score (lossless FLAC)",
+}
+
+def llms_txt(entries):
+    d = CONFIG["domain"]
+    by_path = {m["path"]: m for m in entries}
+
+    def item(m, notes=True):
+        title = m["title"].split(" | ")[0]
+        line = f"- [{title}]({d}{m['path']})"
+        if notes:
+            extra = [m.get("summary") or m.get("description", "")]
+            if m.get("license") == "cc0":
+                extra.append("Public domain (CC0 1.0).")
+            if m.get("pdf_url"):
+                extra.append(f"PDF: {d}{m['pdf_url']}")
+            line += ": " + " ".join(x for x in extra if x)
+        return line
+
+    home = by_path["/"]
+    out = [f"# {CONFIG['name']}, {CONFIG['tagline']}", "", f"> {home['description']}", "",
+           "Every essay under /essays/ and every page of the homeschool curriculum is dedicated to the public "
+           f"domain under CC0 1.0 ({CC0_URL}): copy, quote, translate, republish and learn from them for any "
+           "purpose, without asking. Quotations from other writers keep their own terms. Other pages are not "
+           "covered by that dedication, and nothing on the site is legal advice for a particular case.", "",
+           "## Site", ""]
+    out += [item(by_path[p], notes=p != "/") for p in LLMS_CORE if p in by_path]
+    for name, prefix in LLMS_GROUPS:
+        group = [m for m in entries if m["path"].startswith(prefix) and m["path"] != prefix]
+        if group:
+            out += ["", f"## {name}", ""]
+            if prefix in by_path:
+                out.append(item(by_path[prefix], notes=False) + ": the index of this section.")
+            out += [item(m) for m in group]
+    music = sorted((OUT / "assets" / "music").glob("*"))
+    if music:
+        out += ["", "## Music", "",
+                "Scores and recordings that belong to the essays, public domain (CC0 1.0) with them.", ""]
+        for f in music:
+            note = next((n for suffix, n in MUSIC_NOTES.items() if f.name.endswith(suffix)), "")
+            out.append(f"- [{f.name}]({d}/assets/music/{f.name})" + (f": {note}" if note else ""))
+    rest = [m for m in entries if m["path"] not in LLMS_CORE
+            and not any(m["path"].startswith(p) for _, p in LLMS_GROUPS)]
+    if rest:
+        out += ["", "## Optional", ""] + [item(m) for m in rest]
+    return "\n".join(out) + "\n"
+
 def main():
     pages = []
+    indexed = []  # the meta of every indexable page, for llms.txt
     sources = []
     for p in sorted(SRC.glob("*.html")):
         meta, body = parse(p)
@@ -376,6 +441,7 @@ def main():
         write_page(meta, body)
         if not meta.get("noindex"):
             pages.append((meta["path"], meta["modified"]))
+            indexed.append(meta)
     pdfs.finish()
 
     for f in essay_map.FIELDS:
@@ -391,6 +457,8 @@ def main():
     urls = "".join(f"<url><loc>{CONFIG['domain']}{p}</loc><lastmod>{mod}</lastmod></url>" for p, mod in pages)
     (OUT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n')
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {CONFIG['domain']}/sitemap.xml\n")
+    (OUT / "llms.txt").write_text(llms_txt(indexed), encoding="utf-8")
+    (OUT / f"{INDEXNOW_KEY}.txt").write_text(INDEXNOW_KEY)
     (OUT / "CNAME").write_text("www.canon-lawyer.ca\n")
     (OUT / ".nojekyll").write_text("")
 
