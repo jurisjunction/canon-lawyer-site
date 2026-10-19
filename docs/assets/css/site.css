@@ -350,6 +350,16 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(184,137,63,.
 .prose.dialogue p.line { padding-left: 1.4em; text-indent: -1.4em; }
 .prose.dialogue .sp { font-variant: small-caps; font-weight: 600; letter-spacing: .04em; margin-right: .25em; }
 .prose.dialogue p.stage { font-style: italic; color: var(--muted); }
+.prose.dialogue ul.notes { font-size: .92rem; }
+.deadlines.board td:first-child { white-space: nowrap; }
+/* A table drawn on a whiteboard inside a dialogue: on a phone it stacks into cards, all three columns kept */
+@media (max-width: 560px) {
+  .deadlines.board thead { display: none; }
+  .deadlines.board, .deadlines.board tbody, .deadlines.board tr { display: block; }
+  .deadlines.board tr { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .deadlines.board td, .deadlines.board td:nth-child(3) { display: block; padding: 3px 0; border: 0; }
+  .deadlines.board td + td::before { content: attr(data-label) " · "; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+}
 
 /* Utility */
 .mt-0 { margin-top: 0; } .mb-0 { margin-bottom: 0; }
