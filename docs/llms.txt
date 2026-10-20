@@ -79,6 +79,7 @@ Every essay under /essays/ and every page of the homeschool curriculum is dedica
 
 Scores and recordings that belong to the essays, public domain (CC0 1.0) with them.
 
+- [what-is-to-be-done.strudel.js](https://www.canon-lawyer.ca/assets/music/what-is-to-be-done.strudel.js): the score, as code: paste it into https://strudel.cc and press play
 - [whether-the-cloud-dance-mix.flac](https://www.canon-lawyer.ca/assets/music/whether-the-cloud-dance-mix.flac): a recording of the score (lossless FLAC)
 - [whether-the-cloud-dance-mix.jpg](https://www.canon-lawyer.ca/assets/music/whether-the-cloud-dance-mix.jpg): the video's poster frame
 - [whether-the-cloud-dance-mix.mp3](https://www.canon-lawyer.ca/assets/music/whether-the-cloud-dance-mix.mp3): a recording of the score (MP3)
