@@ -54,18 +54,37 @@
 //   AMEN      65  2:08  things new and old; one chord; then
 //                       Elijah's commission, in the silence
 //
-// The spoken lines come from Shabda's text-to-speech and load the
-// first time they play. If they are slow, stop and play again.
+// The words are chanted, not spoken. SAM, the Software Automatic
+// Mouth, a speech program of 1982, reads each line as a lector chants
+// a reading: recited on D, falling through C to B; the question rises
+// back to D, and the last line falls home to G. It is a machine's
+// voice and sounds like one. At the waters, when the mantle falls,
+// the voice ascends: the last four lines pass to a small choir an
+// octave up, in fauxbourdon, which keeps SAM's words and not its
+// buzz. Both stand in until people sing it; the score is on the site.
+// The lines load from canon-lawyer.ca the first time they play; if
+// they are slow, stop and play again.
 // ============================================================
 
 setcpm(120/4) // one cycle = one bar, the household's tempo
 
-samples('shabda/speech/en-GB/f:o_sing_unto_the_lord_a_new_song,the_singer_himself_is_the_praise,the_spirit_of_elijah_doth_rest_on_elisha,things_new_and_old')
-samples('shabda/speech/en-GB/m:bring_me_a_minstrel,let_a_double_portion_of_thy_spirit_be_upon_me,a_new_man_knows_a_new_song,where_is_the_lord_god_of_elijah,he_shall_turn_the_heart_of_the_fathers_to_the_children')
+// the lines, in the order they come: SAM's until the waters, then the
+// choir's (sam.mjs and ascend.py on the site make them)
+samples({
+  bring_me_a_minstrel: 'sam/bring_me_a_minstrel.wav',
+  o_sing_unto_the_lord_a_new_song: 'sam/o_sing_unto_the_lord_a_new_song.wav',
+  let_a_double_portion_of_thy_spirit_be_upon_me: 'sam/let_a_double_portion_of_thy_spirit_be_upon_me.wav',
+  a_new_man_knows_a_new_song: 'sam/a_new_man_knows_a_new_song.wav',
+  the_singer_himself_is_the_praise: 'sam/the_singer_himself_is_the_praise.wav',
+  where_is_the_lord_god_of_elijah: 'ascended/where_is_the_lord_god_of_elijah.wav',
+  the_spirit_of_elijah_doth_rest_on_elisha: 'ascended/the_spirit_of_elijah_doth_rest_on_elisha.wav',
+  things_new_and_old: 'ascended/things_new_and_old.wav',
+  he_shall_turn_the_heart_of_the_fathers_to_the_children: 'ascended/he_shall_turn_the_heart_of_the_fathers_to_the_children.wav',
+}, 'https://www.canon-lawyer.ca/assets/music/voices/a-new-song/')
 
 // ============================================================
 // ORBITS: 1 drums and telegraph · 2 guitar and the chip ·
-//         3 spoken word · 4 organ, harp and bells · 5 the waters ·
+//         3 the chanted lines · 4 organ, harp and bells · 5 the waters ·
 //         6 choir · 7 recorder
 // ============================================================
 
@@ -175,8 +194,8 @@ const waters = stack(
   s('white').lpf(saw.slow(2).range(5000, 400)).gain(saw.slow(2).range(.1, 0)).pan(saw.slow(2).range(.5, 1)).orbit(5),
 )
 
-// ---------------- VOICES
-const vox = (p, g = 1.3) => s(p).hpf(150).lpf(8000).gain(g)
+// ---------------- VOICES: SAM, chanting; then the choir
+const vox = (p, g = 1) => s(p).hpf(80).lpf(8000).gain(g)
   .delay(".12:.25:.25").room(.25).orbit(3)
 
 // ============================================================

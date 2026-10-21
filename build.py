@@ -384,7 +384,7 @@ def llms_txt(entries):
             if prefix in by_path:
                 out.append(item(by_path[prefix], notes=False) + ": the index of this section.")
             out += [item(m) for m in group]
-    music = sorted((OUT / "assets" / "music").glob("*"))
+    music = sorted(f for f in (OUT / "assets" / "music").glob("*") if f.is_file())  # the motet's voices sit in a folder of their own
     if music:
         out += ["", "## Music", "",
                 "Scores and recordings that belong to the essays, public domain (CC0 1.0) with them. "
