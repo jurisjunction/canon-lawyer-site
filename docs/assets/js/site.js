@@ -21,4 +21,9 @@
   document.querySelectorAll('[data-print]').forEach(function (b) {
     b.addEventListener('click', function () { window.print(); });
   });
+
+  // A figure wider than a phone (the family tree on /music/) scrolls sideways; start it at the middle.
+  document.querySelectorAll('.family-scroll').forEach(function (s) {
+    s.scrollLeft = (s.scrollWidth - s.clientWidth) / 2;
+  });
 })();
