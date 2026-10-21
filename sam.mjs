@@ -14,7 +14,8 @@
 //
 //   npm i --no-save sam-js@0.3.1 && node sam.mjs
 //
-// writes docs/assets/music/voices/a-new-song/<line>.wav, which the motet loads.
+// writes docs/assets/music/voices/a-new-song/sam/<line>.wav, and segments.json,
+// where each line's pitches begin, for ascend.py.
 import SamJs from 'sam-js'
 import fs from 'node:fs'
 const SR = 22050, K = 6805
@@ -77,13 +78,16 @@ const wav = (x) => {
   x.forEach((v, i) => b.writeInt16LE(Math.round(Math.max(-1, Math.min(1, v)) * 32767), 44 + i * 2))
   return b
 }
-const outDir = process.argv[2] || 'docs/assets/music/voices/a-new-song'; fs.mkdirSync(outDir, { recursive: true })
+const outDir = process.argv[2] || 'docs/assets/music/voices/a-new-song/sam'; fs.mkdirSync(outDir, { recursive: true })
+const segments = {}
 const report = {}
 for (const [name, [vk, rec, cad]] of Object.entries(LINES)) {
   const v = VOICE[vk]
   const parts = [render(rec, N[RECITE] + v.oct, SPEED, v), ...cad.map(([syl, note, sp]) => render(syl, N[note] + v.oct, sp, v))]
   const x = join(parts)
+  { let at = 0; segments[name] = { voice: vk, starts: parts.map((p, k) => { const s = [at, [N[RECITE], ...cad.map((c) => N[c[1]])][k] + v.oct]; at += p.length - 176; return s }) } }
   fs.writeFileSync(`${outDir}/${name}.wav`, wav(x))
   report[name] = { voice: vk, seconds: +(x.length / SR).toFixed(2), notes: [RECITE, ...cad.map((c) => c[1])].map((n) => n.replace(/\d/, (d) => String(+d + v.oct / 12))) }
 }
+fs.writeFileSync(`${outDir}/segments.json`, JSON.stringify(segments, null, 1) + '\n')
 console.log(JSON.stringify(report, null, 1))

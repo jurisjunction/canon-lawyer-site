@@ -1,0 +1,155 @@
+{
+ "o_sing_unto_the_lord_a_new_song": {
+  "voice": "f",
+  "starts": [
+   [
+    0,
+    62
+   ],
+   [
+    36159,
+    60
+   ],
+   [
+    43762,
+    59
+   ]
+  ]
+ },
+ "the_singer_himself_is_the_praise": {
+  "voice": "f",
+  "starts": [
+   [
+    0,
+    62
+   ],
+   [
+    33149,
+    60
+   ],
+   [
+    36729,
+    59
+   ]
+  ]
+ },
+ "the_spirit_of_elijah_doth_rest_on_elisha": {
+  "voice": "f",
+  "starts": [
+   [
+    0,
+    62
+   ],
+   [
+    56483,
+    60
+   ],
+   [
+    64086,
+    59
+   ]
+  ]
+ },
+ "things_new_and_old": {
+  "voice": "f",
+  "starts": [
+   [
+    0,
+    62
+   ],
+   [
+    15298,
+    60
+   ],
+   [
+    22589,
+    59
+   ]
+  ]
+ },
+ "bring_me_a_minstrel": {
+  "voice": "m",
+  "starts": [
+   [
+    0,
+    50
+   ],
+   [
+    13742,
+    48
+   ],
+   [
+    21345,
+    47
+   ]
+  ]
+ },
+ "let_a_double_portion_of_thy_spirit_be_upon_me": {
+  "voice": "m",
+  "starts": [
+   [
+    0,
+    50
+   ],
+   [
+    59249,
+    48
+   ],
+   [
+    68960,
+    47
+   ]
+  ]
+ },
+ "a_new_man_knows_a_new_song": {
+  "voice": "m",
+  "starts": [
+   [
+    0,
+    50
+   ],
+   [
+    26454,
+    48
+   ],
+   [
+    34057,
+    47
+   ]
+  ]
+ },
+ "where_is_the_lord_god_of_elijah": {
+  "voice": "m",
+  "starts": [
+   [
+    0,
+    50
+   ],
+   [
+    36703,
+    48
+   ],
+   [
+    44306,
+    50
+   ]
+  ]
+ },
+ "he_shall_turn_the_heart_of_the_fathers_to_the_children": {
+  "voice": "m",
+  "starts": [
+   [
+    0,
+    50
+   ],
+   [
+    59153,
+    47
+   ],
+   [
+    67528,
+    43
+   ]
+  ]
+ }
+}
