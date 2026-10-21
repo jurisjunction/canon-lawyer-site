@@ -1062,18 +1062,33 @@ const a_new_song = (() => {
   //   AMEN      65  2:08  things new and old; one chord; then
   //                       Elijah's commission, in the silence
   //
-  // The spoken lines come from Shabda's text-to-speech and load the
-  // first time they play. If they are slow, stop and play again.
+  // The words are chanted, not spoken. SAM, the Software Automatic
+  // Mouth, a speech program of 1982, reads each line as a lector chants
+  // a reading: recited on D, falling through C to B; the question rises
+  // back to D, and the last line falls home to G. It is a machine's
+  // voice and sounds like one, standing in until people sing it. The
+  // lines load from canon-lawyer.ca the first time they play; if they
+  // are slow, stop and play again.
   // ============================================================
 
   // (its own tempo: 120 BPM; the household keeps one)
 
-  samples('shabda/speech/en-GB/f:o_sing_unto_the_lord_a_new_song,the_singer_himself_is_the_praise,the_spirit_of_elijah_doth_rest_on_elisha,things_new_and_old')
-  samples('shabda/speech/en-GB/m:bring_me_a_minstrel,let_a_double_portion_of_thy_spirit_be_upon_me,a_new_man_knows_a_new_song,where_is_the_lord_god_of_elijah,he_shall_turn_the_heart_of_the_fathers_to_the_children')
+  // the chanted lines, sung by SAM (sam.mjs on the site makes them)
+  samples({
+    o_sing_unto_the_lord_a_new_song: 'o_sing_unto_the_lord_a_new_song.wav',
+    the_singer_himself_is_the_praise: 'the_singer_himself_is_the_praise.wav',
+    the_spirit_of_elijah_doth_rest_on_elisha: 'the_spirit_of_elijah_doth_rest_on_elisha.wav',
+    things_new_and_old: 'things_new_and_old.wav',
+    bring_me_a_minstrel: 'bring_me_a_minstrel.wav',
+    let_a_double_portion_of_thy_spirit_be_upon_me: 'let_a_double_portion_of_thy_spirit_be_upon_me.wav',
+    a_new_man_knows_a_new_song: 'a_new_man_knows_a_new_song.wav',
+    where_is_the_lord_god_of_elijah: 'where_is_the_lord_god_of_elijah.wav',
+    he_shall_turn_the_heart_of_the_fathers_to_the_children: 'he_shall_turn_the_heart_of_the_fathers_to_the_children.wav',
+  }, 'https://www.canon-lawyer.ca/assets/music/voices/a-new-song/')
 
   // ============================================================
   // ORBITS: 1 drums and telegraph · 2 guitar and the chip ·
-  //         3 spoken word · 4 organ, harp and bells · 5 the waters ·
+  //         3 the chanted lines · 4 organ, harp and bells · 5 the waters ·
   //         6 choir · 7 recorder
   // ============================================================
 
@@ -1183,8 +1198,8 @@ const a_new_song = (() => {
     s('white').lpf(saw.slow(2).range(5000, 400)).gain(saw.slow(2).range(.1, 0)).pan(saw.slow(2).range(.5, 1)).orbit(5),
   )
 
-  // ---------------- VOICES
-  const vox = (p, g = 1.3) => s(p).hpf(150).lpf(8000).gain(g)
+  // ---------------- VOICES: SAM, chanting
+  const vox = (p, g = 1) => s(p).hpf(80).lpf(8000).gain(g)
     .delay(".12:.25:.25").room(.25).orbit(3)
 
   // ============================================================
