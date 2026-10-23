@@ -430,8 +430,15 @@ def main():
         # So is every page of the homeschool curriculum.
         if meta["path"].startswith(curriculum.INDEX):
             meta.setdefault("license", "cc0")
+        # A page may bring its own PDF instead (a book laid out by hand, not typeset from the page):
+        # `pdf: /path/to/file.pdf` and `pdf_pages: N` in its comment block.
+        if meta.get("pdf"):
+            meta["pdf_url"] = meta["pdf"]
+            if not (OUT / meta["pdf"].strip("/")).exists():
+                raise SystemExit(f"build: {meta['path']} names a PDF that is not there: {meta['pdf']}")
+            body = pdfs.add_tools(body, {"url": meta["pdf"], "pages": int(meta.get("pdf_pages") or 1)})
         # A downloadable PDF of every piece of writing (pdfs.py), made from the page as written.
-        if pdfs.is_writing(meta):
+        elif pdfs.is_writing(meta):
             pdf = pdfs.make(meta, body, CONFIG["domain"])
             meta["pdf_url"] = pdf["url"] if pdf else None
             body = pdfs.add_tools(body, pdf)

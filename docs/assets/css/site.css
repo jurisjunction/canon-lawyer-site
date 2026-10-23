@@ -435,3 +435,12 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(184,137,63,.
   .curriculum-table td, .curriculum-table td:nth-child(3) { display: block; padding: 3px 0; border: 0; }
   .curriculum-table td + td::before { content: attr(data-label) " · "; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 }
+
+/* A glossed book shown leaf by leaf (essays/venite-ad-me-glossed): each leaf is its own page,
+   1056 x 1632, framed and scaled to the column by a line of script. */
+.ms-section .wrap { max-width: 1120px; }
+.ms-book { display: grid; gap: 34px; justify-items: center; margin: 0 auto; max-width: 1056px; }
+.ms-leaf { margin: 0; width: 100%; }
+.ms-frame { position: relative; width: 100%; aspect-ratio: 1056 / 1632; overflow: hidden; background: #efe6cf; border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 6px 24px rgba(28, 34, 48, .12); }
+.ms-frame iframe { position: absolute; top: 0; left: 0; width: 1056px; height: 1632px; border: 0; transform-origin: 0 0; }
+.ms-leaf figcaption { margin-top: 10px; text-align: center; font-size: .9rem; color: var(--muted); }
