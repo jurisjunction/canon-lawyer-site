@@ -39,6 +39,11 @@ the mode's own final.
 
     python3 counterpoint.py            prints every voice as Strudel mini-notation
     python3 counterpoint.py --check    checks that the track quotes them as made
+    python3 counterpoint.py --ly PATH  writes the choir's part as a LilyPond score, SATB
+    python3 counterpoint.py --midi DIR writes it as MIDI: a file to a voice, and one for all four
+
+The score and the MIDI are written from the same lines, laid out bar for bar as the
+track arranges them, and only if the track quotes every line as made.
 
 Standard library only. Dedicated to the public domain (CC0 1.0).
 """
@@ -359,7 +364,9 @@ def mini(seq):
         toks.append(("~" if w is None else name(w)) + (f"@{d}" if d != 1 else ""))
     return " ".join(toks)
 
-def build():
+def build(keep=None):
+    """Every line, as mini-notation, and the audit of each section. If keep is a dict,
+    the sections themselves go in it too, for the score and the MIDI."""
     S = subjects()
     lines, findings = {}, {}
     for k in S:
@@ -383,21 +390,433 @@ def build():
     for v in ORDER:
         lines[f"DUOBUS_{v}"] = mini(comb[v])
     findings["DUOBUS"] = audit(comb)
+    refrains = {}
     for k, voices in (("SOLO", "S"), ("DUO", "SB"), ("TRIO", "SAB"), ("TUTTI", "SATB")):
-        ref = section_refrain(S["VERE"], list(voices))
+        ref = refrains[k] = section_refrain(S["VERE"], list(voices))
         for v in voices:
             lines[f"VERE_{k}_{v}"] = mini(ref[v])
         findings[f"VERE_{k}"] = audit(ref, slot=2)
     lines["VERE_TIN"] = mini(tintinnabuli(octave(S["VERE"], 1), floor="g5"))
+    if keep is not None:
+        keep.update(subjects=S, DILIGES=(exp1, entries1), SIMILE=(exp2, entries2),
+                    DUOBUS=comb, VERE=refrains)
     return lines, findings
 
+# ---------------------------------------------------------------- 4. the score and the MIDI
+# The choir's part of the track, bar for bar, for people to sing: a LilyPond score
+# (--ly) and Standard MIDI Files (--midi). Nothing is typed twice. The notes are
+# build()'s, and the order of the parts and their lengths are read from the track.
+
+WORDS = {   # the words of TEXTS as words, so the underlay knows where each one ends
+    "DILIGES": "Diliges Dominum Deum tuum ex toto corde tuo",
+    "SIMILE": "Diliges proximum tuum sicut teipsum",
+    "ELI": "Eli, Eli, lamma sabacthani",
+    "ELIAM": "Eliam vocat iste",
+    "CONSUMMATUM": "Consummatum est",
+    "VERE": "Vere Filius Dei erat iste",
+}
+VOICE = {"S": "Soprano", "A": "Alto", "T": "Tenor", "B": "Bass"}
+ROMAN = "I II III IV V VI VII VIII IX X".split()
+GOLGOTHA = {   # what is written over each part of Golgotha
+    "dark": "darkness: the clock alone",
+    "cry": "Solo: the cry",
+    "elias": "Sopranos: the crowd",
+    "finished": "Solo",
+    "rent": "the veil and the earth",
+    "centurion": "Solo: the centurion",
+    "silence": "the tomb",
+}
+FREE = "free voices: text to be set"
+
+def underlay(key):
+    """The syllables of a subject as they are sung, one to a note: [(syllable, word goes on)]."""
+    syls, out = TEXTS[key][0].split(), []
+    for word in WORDS[key].split():
+        letters, got = re.sub(r"[^A-Za-z]", "", word).lower(), []
+        while "".join(got).lower() != letters:
+            assert len(out) + len(got) < len(syls), (key, word)
+            got.append(syls[len(out) + len(got)])
+        at = 0
+        for k, s in enumerate(got):
+            last = k == len(got) - 1
+            out.append((word[at:] if last else word[at:at + len(s)], not last))
+            at += len(s)
+    assert len(out) == len(syls), key
+    return out
+
+def octave_marks(o):                                # c4 is c' in LilyPond
+    return "'" * (o - 3) if o >= 3 else "," * (3 - o)
+
+def pitch(w):                                       # white-key index -> (midi, LilyPond name)
+    return None if w is None else (midi(w), NAME[w % 7] + octave_marks(w // 7 - 1))
+
+def pitch_of(n):                                    # 'g#3' -> (midi, 'gis')
+    m = re.fullmatch(r"([a-g])(#|b)?(\d)", n)
+    acc = m.group(2) or ""
+    return (12 * (int(m.group(3)) + 1) + STEP_PC[NAME.index(m.group(1))] + {"#": 1, "b": -1, "": 0}[acc],
+            m.group(1) + {"#": "is", "b": "es", "": ""}[acc] + octave_marks(int(m.group(3))))
+
+def arrangement(src, const=None):
+    """The [bars, part] items of one of the track's arrange(...) calls (the last one, if no const)."""
+    head = rf"^const {const} = (?:stack\()?arrange\(" if const else r"^arrange\("
+    block = re.search(head + r"(.*?)\n\)", src, re.S | re.M).group(1)
+    items = []
+    for m in re.finditer(r"\[(\d+),\s*", block):
+        part = next(t for t in re.findall(r"[A-Za-z_]\w*", block[m.end():]) if t not in ("stack", "satb", "note"))
+        items.append((int(m.group(1)), part))
+    return items
+
+def chunks(notes, size):
+    """A voice cut into its statements, size eighths each."""
+    out, cur, at = [], [], 0
+    for w, d in notes:
+        cur.append((w, d)); at += d
+        if at % size == 0:
+            out.append(cur); cur = []
+    assert not cur
+    return out
+
+def piece():
+    """The choir's part of the whole track, from its first bar. Returns the events of each
+    voice, [time, pitch or None, eighths, (syllable, word goes on) or None, words over it],
+    the sections as (time, name), the parts as (start, end), and the repeats as
+    (start, end of the first time, end of the second); time is in eighths."""
+    keep = {}
+    lines, findings = build(keep)
+    if any(findings.values()) or unquoted(lines):
+        raise SystemExit("counterpoint.py: the lines break a rule or the track does not quote them as made; run --check")
+    src = TRACK.read_text(encoding="utf-8")
+    S, refrains, comb = keep["subjects"], keep["VERE"], keep["DUOBUS"]
+    sung = {"ELI": (S["ELI"], "ELI"), "ELIAM": (S["ELIAM"], "ELIAM"), "CONSUMMATUM": (S["CONSUMMATUM"], "CONSUMMATUM"),
+            "VERE_SOLO_S": (refrains["SOLO"]["S"], "VERE")}
+    voices, sections, parts, repeats = {v: [] for v in ORDER}, [], [], []
+    clock, marked = 0, False
+
+    def part(bars, lines, over=None, free=False):
+        """One stretch of the track. lines: {voice: (notes, TEXTS key or None)}; the others are silent."""
+        nonlocal clock, marked
+        for v in ORDER:
+            seq, key = lines.get(v, ([(None, 8 * bars)], None))
+            assert sum(d for _, d in seq) == 8 * bars, (v, bars)
+            syls, t, first = iter(underlay(key) if key else ()), clock, True
+            for p, d in seq:
+                words = None
+                if first and over and over[0] == v:
+                    words = over[1]
+                elif free and p is not None and not key and not marked:
+                    words, marked = FREE, True
+                voices[v].append([t, p, d, next(syls) if p is not None and key else None, words])
+                t, first = t + d, False
+            assert next(syls, None) is None, key
+        parts.append((clock, clock + 8 * bars))
+        clock += 8 * bars
+        return tuple((v,) + tuple(lines[v]) for v in ORDER if v in lines)
+
+    def notes(seq):
+        return [(pitch(w), d) for w, d in seq]
+
+    for n, (bars, sec) in enumerate(arrangement(src)):
+        start = clock
+        sections.append((clock, f"{ROMAN[n]}. {sec[3:].title()}"))
+        if sec in ("secDILIGES", "secSIMILE"):          # the expositions, a statement at a time
+            key = sec[3:]
+            exp, entries = keep[key]
+            size = sum(d for _, d in S[key])
+            cut = {v: chunks(exp[v], size) for v in ORDER}
+            for k, (who, _) in enumerate(entries):
+                part(size // 8, {v: (notes(cut[v][k]), key if v == who else None) for v in ORDER}, free=True)
+        elif sec == "secGOLGOTHA":                      # the solo lines, between silences
+            for b, p in arrangement(src, "secGOLGOTHA"):
+                body = re.search(rf"^const {p} = (.*)$", src, re.M)
+                line = next((x for x in re.findall(r"\b[A-Z][A-Z_]+\b", body.group(1)) if x in sung), None) if body else None
+                part(b, {"S": (notes(sung[line][0]), sung[line][1])} if line else {}, over=("S", GOLGOTHA[p]))
+        elif sec == "secVERE":                          # the centurion's line, a voice more each time
+            for b, p in arrangement(src, "secVERE"):
+                ref = refrains[p.split("_")[1]]
+                size = sum(d for _, d in ref["S"]) // 8
+                for _ in range(b // size):
+                    part(size, {v: (notes(ref[v]), "VERE" if v == "S" else None) for v in ref}, free=True)
+        elif sec == "secDUOBUS":                        # both subjects at once; sung again, a repeat
+            last = None
+            for b, p in arrangement(src, "secDUOBUS"):
+                was = clock
+                same = part(b, {"S": (notes(comb["S"]), "SIMILE"), "A": (notes(comb["A"]), None),
+                                "T": (notes(comb["T"]), None), "B": (notes(comb["B"]), "DILIGES")}, free=True)
+                if same == last:
+                    repeats.append((was - 8 * b, was, clock))
+                last = same
+        elif sec == "secAMEN":                          # the phrygian cadence, a note to a voice
+            for b, p in arrangement(src, "secAMEN"):
+                chord = re.search(rf'\b{p} = "\[(.*?)\]"', src)
+                part(b, {v: ([(pitch_of(x), 8 * b)], None) for v, x in zip("BTAS", chord.group(1).split(","))} if chord else {})
+        else:                                           # the instruments alone: the choir is silent
+            part(bars, {})
+        assert clock - start == 8 * bars, (sec, (clock - start) / 8, bars)
+    return voices, sections, parts, repeats
+
+# ---------------------------------------------------------------- the score, in LilyPond
+DUR = {1: "8", 2: "4", 3: "4.", 4: "2", 6: "2.", 7: "2..", 8: "1"}   # eighths -> LilyPond
+
+def fits(o, n):
+    """May a note of n eighths stand as one sign at eighth o of the bar? Not across the bar
+    line, and not across the middle of the bar unless it starts on a beat, or is the
+    quarter of a syncopation (eighth, quarter, eighth)."""
+    return n in DUR and o + n <= 8 and (o == 0 or o + n <= 4 or o >= 4 or (o == 2 and n in (4, 6)) or n == 2)
+
+def sign(t, n, rest=False):
+    """The first sign of a note (or rest) of n eighths from eighth t; the rest is tied on."""
+    o = t % 8
+    return max(k for k in range(1, min(n, 8 - o) + 1) if (o % k == 0 and k in (1, 2, 4, 8) if rest else fits(o, k)))
+
+def ly_text(s):
+    return '"' + s.replace('"', "'") + '"'
+
+def ly_voice(events, sections, repeats, edges):
+    """One voice's notes, a bar to a line, with a comment at the head of each section;
+    repeats: (start, end); edges: where the whole choir falls silent or comes back."""
+    out, heads = [], dict(sections)
+    opens, closes = {a for a, _ in repeats}, {b for _, b in repeats}
+    merged = []                                     # rests that follow each other, as one
+    for e in events:
+        if merged and e[1] is None and merged[-1][1] is None and not e[4] \
+                and e[0] not in heads and e[0] not in opens and e[0] not in closes and e[0] not in edges:
+            merged[-1] = merged[-1][:2] + [merged[-1][2] + e[2]] + merged[-1][3:]
+        else:
+            merged.append(list(e))
+    for t, p, d, _, words in merged:
+        if t in heads:
+            out.append(f"\n  % {heads[t]}\n ")
+        if t in opens:
+            out.append(" \\repeat volta 2 {")
+        at, left = t, d
+        while left:
+            if p is None and at % 8 == 0 and left >= 8:
+                n = 8 * (left // 8)
+                tok = "R1" + (f"*{n // 8}" if n > 8 else "")
+            else:
+                n = sign(at, left, rest=p is None)
+                tok = ("r" if p is None else p[1]) + DUR[n]
+            if at == t and words:
+                tok += f"^\\markup \\small \\italic {ly_text(words)}"
+            out.append(" " + tok + ("~" if p is not None and n < left else ""))
+            at, left = at + n, left - n
+            if at % 8 == 0:
+                out.append(" |\n ")
+        if t + d in closes:
+            out.append(" }")
+    return "".join(out).rstrip()
+
+def ly_words(events):
+    out, skip = [], 0
+    for _, p, _, syl, _ in events:
+        if p is None:
+            continue
+        if syl is None:
+            skip += 1; continue
+        if skip:
+            out.append(f"\\repeat unfold {skip} {{ \\skip 1 }}"); skip = 0
+        out.append(ly_text(syl[0]) + (" --" if syl[1] else ""))
+    if skip:
+        out.append(f"\\repeat unfold {skip} {{ \\skip 1 }}")
+    lines, cur = [], []
+    for tok in out:                                     # a line of text to a line of the file
+        cur.append(tok)
+        if not tok.endswith("--") and (tok.strip('"').endswith(",") or len(" ".join(cur)) > 70 or tok.startswith("\\repeat")):
+            lines.append(" ".join(cur)); cur = []
+    return "\n  ".join(lines + [" ".join(cur)] if cur else lines)
+
+def write_ly(path, voices, sections, parts, repeats):
+    """The score: from the first sung note to the last, a repeat written once. The bar
+    numbers and the times over the sections are the track's."""
+    sung = [(t, t + d) for v in ORDER for t, p, d, *_ in voices[v] if p is not None]
+    first, end = min(a for a, _ in sung), max(b for _, b in sung)
+    gone = [(b, c) for _, b, c in repeats]               # the second time, not written again
+    def at(t):
+        return t - sum(c - b for b, c in gone if t >= c)
+    def shown(t):
+        return first <= t < end and not any(b <= t < c for b, c in gone)
+    keep = {v: [[at(t)] + e for t, *e in voices[v] if shown(t)] for v in ORDER}
+    heads = [(at(t), name, t) for t, name in sections if shown(t)]
+    quiet = [(at(a), at(b)) for a, b in parts if shown(a)
+             and all(p is None for v in ORDER for t, p, *_ in voices[v] if a <= t < b)]
+    loops = [(at(a), at(b)) for a, b, _ in repeats]
+    marks = [(at(first), 1, f"\\tempo 4 = 120 \\set Score.currentBarNumber = #{first // 8 + 1}")]
+    for t, name, real in heads:
+        num, title = name.split(" ", 1)
+        bar, sec = real // 8 + 1, (real // 8) * 2
+        label = (f"\\sectionLabel \\markup \\line {{ \\bold {ly_text(num + ' ' + title)} "
+                 f"\\hspace #2 \\italic {ly_text(f'bar {bar} ({sec // 60}:{sec % 60:02d})')} }}")
+        marks.append((t, 2, ("\\section " if t > at(first) else "") + label))
+    for a, b in quiet:
+        marks += [(a, 1, "\\set Score.skipBars = ##t"), (b, 1, "\\set Score.skipBars = ##f")]
+    for (_, b), (_, _, c) in zip(loops, repeats):  # after a repeat, the track's bar number again
+        marks.append((b, 1, f"\\set Score.currentBarNumber = #{c // 8 + 1}"))
+    marks.append((at(end), 2, '\\bar "|."'))
+    stream, now = [], at(first)
+    for t, _, code in sorted(marks, key=lambda m: m[:2]):
+        if t > now:
+            stream.append(f"s8*{t - now}"); now = t
+        stream.append(code)
+    names = dict(zip(ORDER, ("soprano", "alto", "tenor", "bass")))
+    staves = []
+    for v, clef in zip(ORDER, ("treble", "treble", "treble_8", "bass")):
+        staves.append(
+            f"    \\new Staff \\with {{ instrumentName = {ly_text(VOICE[v])} shortInstrumentName = {ly_text(v + '.')} }} <<\n"
+            + ("      \\marks\n" if v == "S" else "")
+            + f"      \\new Voice = {ly_text(v)} {{ \\global \\clef {ly_text(clef)} \\{names[v]} }}\n"
+            f"    >>\n"
+            f"    \\new Lyrics \\lyricsto {ly_text(v)} {{ \\{names[v]}Words }}")
+    secs = [(t, name) for t, name, _ in heads]
+    edges = {t for q in quiet for t in q}
+    music = "\n\n".join(f"{names[v]} = {{{ly_voice(keep[v], secs, loops, edges)}\n}}\n"
+                         f"{names[v]}Words = \\lyricmode {{\n  {ly_words(keep[v])}\n}}" for v in ORDER)
+    path.write_text(LY.format(marks="\n  ".join(stream), music=music, staves="\n".join(staves)), encoding="utf-8")
+
+LY = r"""% On These Two Hang: the choir's lines, for SATB
+% The choir's part of the track at canon-lawyer.ca/music/, bar for bar.
+% Written by counterpoint.py --ly from the lines the track plays; do not edit by hand.
+% Engrave with GNU LilyPond: lilypond on-these-two-hang.ly
+% Dedicated to the public domain (CC0 1.0).
+
+\version "2.24.0"
+
+#(set-global-staff-size 18)
+
+\paper {{
+  #(set-paper-size "letter")
+  top-margin = 16\mm
+  bottom-margin = 14\mm
+  left-margin = 20\mm
+  right-margin = 20\mm
+  markup-system-spacing.padding = 2
+  score-markup-spacing.padding = 2
+  system-system-spacing.padding = 2
+  print-page-number = ##t
+  print-first-page-number = ##f
+}}
+
+\header {{
+  title = "On These Two Hang"
+  subtitle = "A double fugue for the household"
+  subsubtitle = \markup \italic {{ "“On these two commandments hang all the law and the prophets” (Matthew 22:40)" }}
+  poet = "Words: the Vulgate"
+  composer = "Notes made by rule: counterpoint.py"
+  copyright = "Dedicated to the public domain (CC0 1.0)"
+  tagline = \markup \small {{ "canon-lawyer.ca/music/ · Dedicated to the public domain (CC0 1.0) · Made by Claude + Richard" }}
+}}
+
+\markup \justify {{
+  The choir's part of the track, bar for bar, in mode III, E phrygian. The notes are written out by counterpoint.py
+  from the same lines the track plays, and the bar numbers are the track's. The first eight bars, I. Pendet,
+  belong to the instruments and to the lawyer's question, so the score begins at bar 9. Each subject is carved from
+  its Latin words, a note to a syllable, and its words are set under every statement. The free voices around the
+  subjects were found by a search under Fux's rules; they have no text yet. In Golgotha the choir rests through the
+  darkness, the veil and the tomb. The last chords are the track's phrygian cadence, a note to a voice.
+}}
+
+global = {{ \key e \phrygian \numericTimeSignature \time 4/4 }}
+
+marks = {{
+  {marks}
+}}
+
+{music}
+
+\score {{
+  \new ChoirStaff <<
+{staves}
+  >>
+  \layout {{
+    \context {{ \Staff \RemoveEmptyStaves }}
+    \context {{ \Lyrics
+      \override LyricText.font-size = #0.5
+      \override LyricHyphen.minimum-distance = #1.2
+      \override LyricSpace.minimum-distance = #1.0
+    }}
+  }}
+}}
+
+\markup \small \italic \justify {{
+  Matthew 22:37, 22:39, 27:46, 27:47 and 27:54; John 19:30 (Vulgate). The heading is Matthew 22:40 (King James Version).
+  After the cadence the track keeps four bars of silence, and in them “If ye love me, keep my commandments” (John 14:15).
+}}
+"""
+
+# ---------------------------------------------------------------- the MIDI, by hand
+TPQ = 480                                           # ticks to a quarter; an eighth is TPQ // 2
+
+def vlq(n):                                         # a variable-length quantity
+    out = [n & 0x7F]
+    while n > 0x7F:
+        n >>= 7
+        out.append(0x80 | (n & 0x7F))
+    return bytes(reversed(out))
+
+def meta(kind, data):
+    return bytes([0xFF, kind]) + vlq(len(data)) + data
+
+def mtrk(events, end):
+    """events: [(tick, order, bytes)]; at the same tick a lower order goes first (a note
+    ends before the next one starts). end: the tick where the track ends."""
+    out, now = b"", 0
+    for tick, _, ev in sorted(events, key=lambda e: e[:2]):
+        out += vlq(tick - now) + ev; now = tick
+    out += vlq(end - now) + b"\xff\x2f\x00"
+    return b"MTrk" + len(out).to_bytes(4, "big") + out
+
+def smf(tracks):                                    # format 1, TPQ ticks to a quarter
+    return b"MThd" + (6).to_bytes(4, "big") + (1).to_bytes(2, "big") + len(tracks).to_bytes(2, "big") \
+        + TPQ.to_bytes(2, "big") + b"".join(tracks)
+
+def write_midi(folder, voices, sections, parts, repeats):
+    """The whole track's choir, bar for bar from bar 1, repeats played out."""
+    tick, end = TPQ // 2, parts[-1][1] * TPQ // 2
+    conductor = [(0, 0, meta(0x03, b"On These Two Hang")), (0, 0, meta(0x02, b"Dedicated to the public domain (CC0 1.0)")),
+                 (0, 0, meta(0x58, bytes([4, 2, 24, 8]))), (0, 0, meta(0x51, (60_000_000 // 120).to_bytes(3, "big")))]
+    conductor += [(t * tick, 1, meta(0x06, name.encode("ascii"))) for t, name in sections]
+    conductor = mtrk(conductor, end)
+    tracks = {}
+    for ch, v in enumerate(ORDER):
+        ev = [(0, -1, meta(0x03, VOICE[v].encode("ascii"))), (0, -1, bytes([0xC0 | ch, 52]))]   # 52: choir aahs
+        for t, p, d, syl, _ in voices[v]:
+            if p is None:
+                continue
+            if syl:
+                ev.append((t * tick, 1, meta(0x05, (syl[0] + "-" * syl[1]).encode("ascii"))))
+            ev += [(t * tick, 2, bytes([0x90 | ch, p[0], 80])), ((t + d) * tick, 0, bytes([0x80 | ch, p[0], 0]))]
+        tracks[v] = mtrk(ev, end)
+    folder.mkdir(parents=True, exist_ok=True)
+    for v in ORDER:
+        (folder / f"on-these-two-hang-{v}.mid").write_bytes(smf([conductor, tracks[v]]))
+    (folder / "on-these-two-hang-SATB.mid").write_bytes(smf([conductor] + [tracks[v] for v in ORDER]))
+
+def engrave():
+    def arg(flag):
+        k = sys.argv.index(flag)
+        if k + 1 >= len(sys.argv):
+            sys.exit(f"counterpoint.py: {flag} needs a path")
+        return Path(sys.argv[k + 1])
+    made = piece()
+    if "--ly" in sys.argv:
+        write_ly(arg("--ly"), *made)
+        print(f"counterpoint.py: the score, in LilyPond, at {arg('--ly')}")
+    if "--midi" in sys.argv:
+        write_midi(arg("--midi"), *made)
+        print(f"counterpoint.py: MIDI, a file to a voice and one for all four, in {arg('--midi')}")
+
+def unquoted(lines):
+    """The lines the track does not quote exactly as made."""
+    src = TRACK.read_text(encoding="utf-8")
+    return [k for k, v in lines.items() if not re.search(rf"^const {k} = '{re.escape(v)}'", src, re.M)]
+
 def main():
+    if "--ly" in sys.argv or "--midi" in sys.argv:
+        return engrave()
     lines, findings = build()
     for sec, f in findings.items():
         print(f"// audit {sec}: " + ("every half note keeps the rules" if not f else "; ".join(f)), file=sys.stderr)
     if "--check" in sys.argv:
-        src = TRACK.read_text(encoding="utf-8")
-        bad = [k for k, v in lines.items() if not re.search(rf"^const {k} = '{re.escape(v)}'", src, re.M)]
+        bad = unquoted(lines)
         if bad:
             sys.exit("counterpoint.py: the track does not quote these as made: " + ", ".join(bad))
         print(f"counterpoint.py: {len(lines)} lines, each carved or found by rule, quoted as made")
