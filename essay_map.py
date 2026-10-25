@@ -10,6 +10,8 @@ To add a field: add a dict to FIELDS (its `draws_on` may only name fields that
 do not, directly or indirectly, draw on it; build.py refuses a cycle).
 To file an essay: give it `field: <slug>` and, if it touches others,
 `also: <slug>, <slug>`.
+To lift an essay above the map instead: give it `lifted: up` and `reach: <slug>, ...`
+and no field (see "Lifted up" below).
 """
 import html
 
@@ -157,16 +159,24 @@ def link_list(slugs):
     return ", ".join(link(s) for s in slugs) if slugs else "nothing on the map yet"
 
 
-def map_svg(counts, href=None, label=None, title=None):
+def map_svg(counts, href=None, label=None, title=None, lifted=None, dim=False):
     """The graph as an inline SVG: nodes link to their pages; empty fields drawn dashed.
 
     href(slug) and label(slug) change where a node links and its small caption, which
     then replaces the kind of answer (the curriculum draws the same map with its units);
-    a node is dashed only when it has no count and no label of its own."""
+    a node is dashed only when it has no count and no label of its own.
+
+    lifted, an essay's meta, hangs that essay above the map with a gold tree into the
+    fields it reaches (see `lifted:` below); dim fades everything else, for its own page.
+    Without it the drawing is exactly what it always was."""
     href = href or (lambda s: f"/essays/{s}/")
     title = title or "A map of the disciplines: what each draws on, from reading and number to worship"
     W, ROW, BW, BH, TOP = 560, 76, 168, 48, 16
     xs = {0: 98, 1: 280, 2: 462}
+    if lifted:                                     # room above for the lifted essay, and wider lanes for its tree
+        W, TOP = 600, 16 + LIFT_BAND
+        xs = {0: 104, 1: 300, 2: 496}
+        title += f"; above it, outside its order, {lifted['title']}, lifted up"
     lay = layers()
     pos = {}
     for f in FIELDS:
@@ -177,6 +187,7 @@ def map_svg(counts, href=None, label=None, title=None):
              f'<title id="map-title">{esc(title)}</title>',
              '<defs><marker id="map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
              '<path d="M1 1L9 5L1 9" fill="none" stroke="#a8844c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>']
+    reach = set(_reach(lifted)) if lifted else set()
     for a, b in reduced_edges():
         (xa, ya), (xb, yb) = pos[a], pos[b]
         y1, y2 = ya + BH, yb
@@ -189,7 +200,10 @@ def map_svg(counts, href=None, label=None, title=None):
         else:                                      # one row down, across
             dy = (y2 - y1) / 2
             d = f"M{xa},{y1} C{xa},{y1 + dy} {xb},{y2 - dy} {xb},{y2 - 2}"
-        parts.append(f'<path class="edge" d="{d}" fill="none" stroke="#a8844c" stroke-width="1.3" marker-end="url(#map-arrow)"/>')
+        faded = ' stroke-opacity=".3"' if dim else ""
+        parts.append(f'<path class="edge" d="{d}" fill="none" stroke="#a8844c"{faded} stroke-width="1.3" marker-end="url(#map-arrow)"/>')
+    if lifted:
+        parts += _lifted_tree(lifted, pos, xs, BW, BH)
     for f in FIELDS:
         s = f["slug"]
         x, y = pos[s]
@@ -198,9 +212,14 @@ def map_svg(counts, href=None, label=None, title=None):
         caption = label(s) if label else (f'{n} essay{"s" if n != 1 else ""}' if n else "a gap")
         rect_attrs = ('fill="none" stroke="#c9bda7" stroke-width="1.2" stroke-dasharray="5 4"' if gap
                       else 'fill="#fffdf9" stroke="#ddd4c4" stroke-width="1.2"')
+        if s in reach:                             # a field the lifted essay reaches: a gold rim (and gold ground, on its page)
+            rect_attrs = rect_attrs.replace('stroke="#c9bda7"', f'stroke="{GOLD}"').replace('stroke="#ddd4c4" stroke-width="1.2"', f'stroke="{GOLD}" stroke-width="1.4"')
+            if dim:
+                rect_attrs = rect_attrs.replace('fill="#fffdf9"', f'fill="{GOLD_GROUND}"').replace('fill="none"', f'fill="{GOLD_GROUND}"')
         name_fill = "#5a6273" if gap else "#1c2230"
+        fade = ' opacity=".55"' if dim and s not in reach else ""
         parts.append(
-            f'<a class="node{gap}" href="{href(s)}" aria-label="{esc(f["name"])}: {esc(f["discipline"])}, {caption}">'
+            f'<a class="node{gap}" href="{href(s)}"{fade} aria-label="{esc(f["name"])}: {esc(f["discipline"])}, {caption}">'
             f'<rect x="{x - BW / 2}" y="{y}" width="{BW}" height="{BH}" rx="9" {rect_attrs}/>'
             f'<text class="n-name" x="{x}" y="{y + 21}" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="19" fill="{name_fill}">{esc(f["name"])}</text>'
             f'<text class="n-kind" x="{x}" y="{y + 37}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10.5" letter-spacing=".07em" fill="#5a6273">{esc((caption if label else f["kind"] + " · " + caption).upper())}</text></a>')
@@ -217,10 +236,114 @@ def _also(meta):
 
 
 def check_filing(essays):
+    lifted = [e for e in essays if is_lifted(e)]
+    if len(lifted) > 1:
+        raise SystemExit("essay_map: only one essay can hang above the map, and these are lifted: "
+                         + ", ".join(e["path"] for e in lifted) + " (the drawing has room for one)")
     for e in essays:
+        if is_lifted(e):
+            if e.get("field") or _also(e):
+                raise SystemExit(f"essay_map: {e['path']} is lifted up, outside the map's order, so it is filed in no "
+                                 "field: drop its field: and also:, and name what it reaches with reach:")
+            if not _reach(e):
+                raise SystemExit(f"essay_map: {e['path']} is lifted up but reaches no field: give it reach: <slug>, <slug>")
+            for s in _reach(e):
+                if s not in BY_SLUG:
+                    raise SystemExit(f"essay_map: {e['path']} reaches unknown field {s!r}")
+            continue
+        if e.get("lifted"):
+            raise SystemExit(f"essay_map: {e['path']} has lifted: {e['lifted']!r}; the only value is up")
+        if e.get("reach"):
+            raise SystemExit(f"essay_map: {e['path']} has reach: but is not lifted; a filed essay uses field: and also:")
         for s in [e.get("field", "")] + _also(e):
             if s not in BY_SLUG:
                 raise SystemExit(f"essay_map: {e['path']} is filed under unknown field {s!r}")
+
+
+# ---------------------------------------------------------------------------
+# Lifted up. An essay may be lifted above the map instead of filed on it:
+#
+#     lifted: up
+#     reach: <slug>, <slug>, ...
+#
+# It is filed in no field, so it is no node of the graph and check_graph never sees
+# it: it stands outside the order of what draws on what, and so it can reach every
+# field, Worship too, without a cycle. The map hangs it above the fields with a gold
+# tree into each field it reaches. The household of tracks has the same mark
+# (music.py, "LIFTED UP.": all hang on it). It is lifted for what it is about, not
+# because it ranks above the other essays. The build refuses a lifted essay that is
+# also filed, and a second lifted essay (the drawing has room for one).
+
+GOLD, GOLD_GROUND, LIFT_BAND = "#a8740f", "#fbf1dc", 92
+
+
+def is_lifted(meta):
+    return bool(meta) and meta.get("lifted", "").strip() == "up"
+
+
+def _reach(meta):
+    return [s.strip() for s in meta.get("reach", "").split(",") if s.strip()] if is_lifted(meta) else []
+
+
+def touches(meta, slug):
+    """Whether an essay is filed under this field, also touches it, or reaches it from above."""
+    return meta.get("field") == slug or slug in _also(meta) or slug in _reach(meta)
+
+
+def _lifted_tree(lifted, pos, xs, BW, BH):
+    """The lifted essay's box above the map, and a gold trunk down each lane between the
+    columns with a branch into every field it reaches. Branches end in a dot, not an
+    arrowhead: they are no step in the map's order."""
+    lx, ly, LW, LH = xs[1], 14, 236, 56
+    lanes = {"left": (xs[0] + BW / 2 + xs[1] - BW / 2) / 2, "right": (xs[1] + BW / 2 + xs[2] - BW / 2) / 2}
+    at = lambda s: pos[s][1] + BH * 0.74          # below where the map's own arrows come in from the side
+    reach = [f["slug"] for f in FIELDS if f["slug"] in _reach(lifted)]
+    out = []
+    for side, gx in lanes.items():
+        group = [s for s in reach if (COLUMN.get(s, 1) == 2) == (side == "right")]
+        if not group:
+            continue
+        out.append(f'<path class="lift-trunk" d="M{gx},{ly + LH} L{gx},{max(at(s) for s in group)}" fill="none" stroke="{GOLD}" stroke-width="2"/>')
+        for s in group:
+            x = pos[s][0]
+            end = x + BW / 2 if x < gx else x - BW / 2
+            out.append(f'<path class="lift-branch" d="M{gx},{at(s)} L{end},{at(s)}" fill="none" stroke="{GOLD}" stroke-width="2"/>'
+                       f'<circle cx="{end}" cy="{at(s)}" r="3" fill="{GOLD}"/>')
+    title = lifted["title"]
+    size = 20 if len(title) <= 22 else 16
+    out.append(f'<a class="node lifted" href="{lifted["path"]}" aria-label="{esc(title)}: lifted up, outside the map’s order">'
+               f'<rect x="{lx - LW / 2}" y="{ly}" width="{LW}" height="{LH}" rx="10" fill="{GOLD_GROUND}" stroke="{GOLD}" stroke-width="2.6"/>'
+               f'<rect x="{lx - LW / 2 + 4}" y="{ly + 4}" width="{LW - 8}" height="{LH - 8}" rx="7" fill="none" stroke="{GOLD}" stroke-width=".8"/>'
+               f'<text class="n-name" x="{lx}" y="{ly + 26}" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="{size}" font-style="italic" fill="#1c2230">{esc(title)}</text>'
+               f'<text class="n-kind" x="{lx}" y="{ly + 43}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" letter-spacing=".08em" fill="{GOLD}">LIFTED UP · ALL HANG ON IT</text></a>')
+    return out
+
+
+def lifted_crumbs(meta):
+    return '<p class="crumbs"><a href="/essays/">Essays</a> › <a href="/essays/#lifted-up">Lifted up</a></p>'
+
+
+def lifted_nav(meta, essays):
+    """The band at the foot of a lifted essay: the map, faded, with its own tree in gold."""
+    counts = {f["slug"]: len(filed(essays, f["slug"])[0]) for f in FIELDS}
+    svg = map_svg(counts, lifted=meta, dim=True,
+                  title=f"Where {meta['title']} reaches on the map of the disciplines")
+    return f"""
+<section class="section map-nav-band">
+  <div class="wrap narrow">
+    <nav class="map-nav" aria-label="On the map">
+      <p class="eyebrow">On the map</p>
+      <p><span class="map-nav-label">Lifted up</span> outside the map’s order, and filed in no field</p>
+      <p><span class="map-nav-label">Reaches</span> {link_list([f["slug"] for f in FIELDS if f["slug"] in _reach(meta)])}</p>
+    </nav>
+    <figure class="map-figure">
+      {svg}
+      <figcaption>It hangs above the map for what it is about, not because it ranks above the other essays: “And I, if I be lifted up from the earth, will draw all men unto me” (John 12:32). The brown arrows are the map’s own order, each field after what it draws on; the gold is this essay’s reach, and no part of that order.</figcaption>
+    </figure>
+    <p class="more"><a href="/essays/">The whole map →</a></p>
+  </div>
+</section>
+"""
 
 
 def filed(essays, slug):
@@ -253,7 +376,16 @@ def map_section(essays):
     """The essays index: the drawing, then every field in order with what is filed there."""
     check_filing(essays)
     counts = {f["slug"]: len(filed(essays, f["slug"])[0]) for f in FIELDS}
+    lifted = next((e for e in essays if is_lifted(e)), None)
     rows = []
+    if lifted:
+        reach = [f["slug"] for f in FIELDS if f["slug"] in _reach(lifted)]
+        rows.append(f"""      <li class="field lifted" id="lifted-up" style="border-left:3px solid {GOLD};padding-left:18px">
+        <p class="reg">Outside the map · lifted up</p>
+        <h2><a href="{lifted['path']}">{esc(lifted['title'])}</a></h2>
+        <p>{lifted.get('summary', '')}</p>
+        <p class="field-edges">Filed in no field, and no part of the map’s order. It reaches {link_list(reach)}.</p>
+      </li>""")
     for slug in check_graph():
         f = BY_SLUG[slug]
         main, also = filed(essays, slug)
@@ -264,6 +396,8 @@ def map_section(essays):
             body = '<p class="field-gap">Nothing here yet.</p>'
         if also:
             body += '<p class="field-also">Also touching it: ' + ", ".join(f'<a href="{e["path"]}">{esc(e["title"])}</a>' for e in also) + "</p>"
+        if lifted and slug in _reach(lifted):
+            body += f'<p class="field-also">Reached from above: <a href="{lifted["path"]}">{esc(lifted["title"])}</a>, lifted up</p>'
         draws = f'<p class="field-edges">Draws on {link_list(f["draws_on"])}.</p>' if f["draws_on"] else '<p class="field-edges">Draws on nothing before it.</p>'
         rows.append(f"""      <li class="field" id="{slug}">
         <p class="reg">{esc(f['discipline'])} · {esc(f['kind'])}</p>
@@ -273,11 +407,14 @@ def map_section(essays):
         {body}
       </li>""")
     off = "".join(f"<li><strong>{esc(n)}.</strong> {esc(t)}</li>" for n, t in NOT_ON_MAP)
+    caption = "Each discipline is placed after what it draws on. Click one to see what is filed there; the dashed ones are gaps, still to be written into."
+    if lifted:
+        caption += " Above the map, outside its order, one essay is lifted up; the gold runs from it into every field it reaches."
     return f"""<section class="section map-band">
   <div class="wrap narrow">
     <figure class="map-figure">
-      {map_svg(counts)}
-      <figcaption>Each discipline is placed after what it draws on. Click one to see what is filed there; the dashed ones are gaps, still to be written into.</figcaption>
+      {map_svg(counts, lifted=lifted)}
+      <figcaption>{caption}</figcaption>
     </figure>
     <ul class="essay-list field-list">
 {chr(10).join(rows)}
@@ -302,6 +439,11 @@ def field_page(slug, essays, extra=""):
         also_html = ('<h2 class="off-map-head">Also touching ' + esc(f["name"]) + '</h2>\n    <ul class="field-essays">'
                      + "".join(f'<li><a href="{e["path"]}">{esc(e["title"])}</a> <span class="reg-inline">filed under {link(e["field"])}</span></li>' for e in also)
                      + "</ul>")
+    hung = [e for e in essays if is_lifted(e) and slug in _reach(e)]
+    if hung:
+        also_html += (("\n    " if also_html else "") + '<h2 class="off-map-head">Reached from above</h2>\n    <ul class="field-essays">'
+                      + "".join(f'<li><a href="{e["path"]}">{esc(e["title"])}</a> <span class="reg-inline">lifted up, outside the map’s order</span></li>' for e in hung)
+                      + "</ul>")
     body = f"""<section class="page-head">
   <div class="wrap narrow">
     <p class="crumbs"><a href="/essays/">Essays</a></p>

@@ -407,7 +407,7 @@ def main():
         meta["modified"] = last_modified(p)
         sources.append((p, meta, body))
 
-    # The essays map: every essay is filed on a field (essay_map.py).
+    # The essays map: every essay is filed on a field, or lifted above the map (essay_map.py).
     essays = [m for _, m, _ in sources if m.get("kind") == "essay" and m["path"].startswith("/essays/")]
     essay_map.check_graph()
     essay_map.check_filing(essays)
@@ -444,10 +444,14 @@ def main():
             body = pdfs.add_tools(body, pdf)
         if meta.get("kind") == "essay" and meta.get("field"):
             body = body.replace(ESSAY_CRUMBS, essay_map.essay_crumbs(meta), 1)
+        elif meta.get("kind") == "essay" and essay_map.is_lifted(meta):
+            body = body.replace(ESSAY_CRUMBS, essay_map.lifted_crumbs(meta), 1)
         if meta.get("license") == "cc0":
             body += LICENSE_BAND if meta["path"].startswith("/essays/") else LICENSE_BAND.replace("this essay", "this page")
         if meta.get("kind") == "essay" and meta.get("field"):
             body += essay_map.essay_nav(meta)
+        elif meta.get("kind") == "essay" and essay_map.is_lifted(meta):
+            body += essay_map.lifted_nav(meta, essays)
         if meta.get("kind") == "unit":
             body += curriculum.unit_nav(meta, units)
         write_page(meta, body)
@@ -458,7 +462,7 @@ def main():
 
     for f in essay_map.FIELDS:
         meta, body = essay_map.field_page(f["slug"], essays, curriculum.field_line(f["slug"], units))
-        filed = [e["modified"] for e in essays if e.get("field") == f["slug"] or f["slug"] in essay_map._also(e)]
+        filed = [e["modified"] for e in essays if essay_map.touches(e, f["slug"])]
         meta["modified"] = max(filed, default=newest_essay)
         write_page(meta, body)
         pages.append((meta["path"], meta["modified"]))
