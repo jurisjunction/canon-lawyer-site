@@ -33,8 +33,14 @@ TRACKS = [
     ("what-is-to-be-done.strudel.js", "What Is to Be Done?", "the garage mix", "/essays/what-is-to-be-done/"),
     ("brother-electron.strudel.js", "Brother Electron", "the clockwork mix", "/essays/brother-electron/"),
     ("a-new-song.strudel.js", "A New Song", "a motet for the household", "/music/"),
+    ("on-these-two-hang.strudel.js", "On These Two Hang", "a double fugue", "/music/#the-double-fugue"),
 ]
 EDGE = re.compile(r"^//\s+([\w.-]+\.strudel\.js)\s+([A-Z_]+)\s+([0-9a-f]{12})\s*$", re.M)
+# A track may say, in its header, that the household hangs on it ("// LIFTED UP."):
+# in the order of time it is the youngest, a merge of every track before it;
+# in the order of the end every track hangs on it (Matthew 22:40; John 12:32).
+# The claim is checked, not taken on its word: such a track must quote them all.
+LIFTED = re.compile(r"^// LIFTED UP\.", re.M)
 
 
 def ident(file):
@@ -50,6 +56,7 @@ def read_tracks():
             "file": file, "id": ident(file), "title": title, "mix": mix, "page": page, "src": src,
             "bpm": int(tempo.group(1)), "bars": int(tempo.group(2)), "length": tempo.group(3),
             "edges": [(p, name, h) for p, name, h in EDGE.findall(src)],
+            "lifted": bool(LIFTED.search(src)),
         })
     return tracks
 
@@ -76,6 +83,11 @@ def check(tracks):
             quoted = found[0]
             if f"'{quoted}'" not in by_file[parent]["src"]:
                 problems.append(f"{t['file']}: {name} is not quoted as written in {parent}")
+        if t["lifted"]:
+            quoted = {p for p, _, _ in t["edges"]}
+            missing = [f for f in order[:order.index(t["file"])] if f not in quoted]
+            if missing:
+                problems.append(f"{t['file']}: says the household hangs on it, but does not quote " + ", ".join(missing))
     if problems:
         sys.exit("music.py:\n  " + "\n  ".join(problems))
 
@@ -205,13 +217,18 @@ def svg(tracks):
            '<title id="ft-t">The household: the tracks as a family tree</title>',
            '<desc id="ft-d">' + html.escape(" ".join(
                f"{t['title']} quotes " + "; ".join(f"{name} from {tracks[idx[p]]['title']}" for p, name, _ in t["edges"]) + "."
-               for t in tracks if t["edges"])) + '</desc>',
+               for t in tracks if t["edges"]) + "".join(
+               f" Every track hangs on {t['title']}: it quotes every track before it, so through it each is kin to every other."
+               for t in tracks if t["lifted"])) + '</desc>',
            f'<defs><marker id="ft-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="{gold}"/></marker></defs>']
     out += lines + labels
     for t, y in zip(tracks, ys):
-        out.append(f'<a href="{t["page"]}"><rect x="{cx - BW / 2:.0f}" y="{y - BH / 2:.0f}" width="{BW}" height="{BH}" rx="6" fill="#fffdf9" stroke="{gold}" stroke-width="1.3"/>'
+        lifted = t["lifted"]   # the household hangs on it: drawn in gold, and says so
+        fill, width = ("#f6ecd9", 2.4) if lifted else ("#fffdf9", 1.3)
+        note = " · ALL HANG ON IT" if lifted else ""
+        out.append(f'<a href="{t["page"]}"><rect x="{cx - BW / 2:.0f}" y="{y - BH / 2:.0f}" width="{BW}" height="{BH}" rx="6" fill="{fill}" stroke="{gold}" stroke-width="{width}"/>'
                    f'<text x="{cx:.0f}" y="{y - 4:.0f}" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="19" fill="{ink}">{html.escape(t["title"])}</text>'
-                   f'<text x="{cx:.0f}" y="{y + 16:.0f}" text-anchor="middle" font-size="10.5" fill="{muted}" letter-spacing=".08em">{html.escape(t["mix"].upper())} · {t["bpm"]} BPM · {t["bars"]} BARS</text></a>')
+                   f'<text x="{cx:.0f}" y="{y + 16:.0f}" text-anchor="middle" font-size="10.5" fill="{muted}" letter-spacing=".08em">{html.escape(t["mix"].upper())} · {t["bpm"]} BPM · {t["bars"]} BARS{note}</text></a>')
     out.append("</svg>")
     return "\n".join(out) + "\n"
 

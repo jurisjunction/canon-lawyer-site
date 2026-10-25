@@ -372,7 +372,9 @@ def build():
         lines[f"DILIGES_{v}"] = mini(exp1[v])
     findings["DILIGES"] = audit(exp1)
     # the second wing: "Diliges proximum", the same head, entering from the bass up
-    exp2 = section_exposition(S["SIMILE"], [("B", -7), ("T", -3), ("A", 0), ("S", 4)])
+    entries2 = [("B", -7), ("T", -3), ("A", 0), ("S", 4)]
+    exp2 = section_exposition(S["SIMILE"], entries2)
+    lines["SIMILE_TIN"] = mini(statements(S["SIMILE"], entries2))
     for v in ORDER:
         lines[f"SIMILE_{v}"] = mini(exp2[v])
     findings["SIMILE"] = audit(exp2)
