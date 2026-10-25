@@ -14,8 +14,8 @@ anyone's voice say what they did not sing.
 
     python3 ascend.py [track]      (numpy and scipy; run node sam.mjs [track] first)
 
-reads docs/assets/music/voices/<track>/sam/ and writes the lines that ascend
-to docs/assets/music/voices/<track>/ascended/; the track is a-new-song unless
+reads voices/<track>/sam/ beside this file and writes the lines that ascend
+to voices/<track>/ascended/; the track is a-new-song unless
 another is named. Each track sings in its own mode (below). Deterministic: the
 choir's small detunings come from fixed seeds, so the same input gives the
 same bytes.
@@ -102,7 +102,7 @@ def write(fn, y):
     w = wave.open(fn, "wb"); w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
     w.writeframes((np.clip(y, -1, 1) * 32767).astype(np.int16).tobytes()); w.close()
 
-VOICES = Path(__file__).parent / "docs" / "assets" / "music" / "voices" / TRACK
+VOICES = Path(__file__).parent / "voices" / TRACK
 ASCENDS = {
     "a-new-song": ["where_is_the_lord_god_of_elijah", "the_spirit_of_elijah_doth_rest_on_elisha",
                    "things_new_and_old", "he_shall_turn_the_heart_of_the_fathers_to_the_children"],
