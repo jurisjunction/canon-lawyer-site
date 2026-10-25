@@ -12,20 +12,21 @@
 // written in SAM's own phonetic alphabet, because its text reader mangles
 // the prophets' names (it says EHLIHJAE).
 //
-//   npm i --no-save sam-js@0.3.1 && node sam.mjs
+//   npm i --no-save sam-js@0.3.1 && node sam.mjs [track]
 //
-// writes docs/assets/music/voices/a-new-song/sam/<line>.wav, and segments.json,
-// where each line's pitches begin, for ascend.py.
+// writes docs/assets/music/voices/<track>/sam/<line>.wav, and segments.json,
+// where each line's pitches begin, for ascend.py. The track is a-new-song
+// unless another is named; each track keeps its own lines and mode below.
 import SamJs from 'sam-js'
 import fs from 'node:fs'
 const SR = 22050, K = 6805
 const HZ = (m) => 440 * 2 ** ((m - 69) / 12)
-const N = { G2: 43, B2: 47, C3: 48, D3: 50, E3: 52, G3: 55, B3: 59, C4: 60, D4: 62, E4: 64 }
+const N = { E2: 40, F2: 41, G2: 43, A2: 45, B2: 47, C3: 48, D3: 50, E3: 52, F3: 53, G3: 55, A3: 57, B3: 59, C4: 60, D4: 62, E4: 64 }
 const VOICE = {
   m: { mouth: 128, throat: 128, oct: 0 },   // SAM himself
   f: { mouth: 150, throat: 140, oct: 12 },  // brighter, an octave up
 }
-const LINES = {
+const NEW_SONG = {
   // name: [voice, recitation, [[syllable, note, speed], ...]]
   o_sing_unto_the_lord_a_new_song: ['f', 'OW SIHNX AHNTUW DHAX LAORD AX', [['NUW', 'C3', 96], ['SAOAONX', 'B2', 130]]],
   the_singer_himself_is_the_praise: ['f', 'DHAX SIHNXER /HIHMSEHLF IHZ', [['DHAX', 'C3', 90], ['PREYEYZ', 'B2', 130]]],
@@ -37,7 +38,31 @@ const LINES = {
   where_is_the_lord_god_of_elijah: ['m', 'WHEHR IHZ DHAX LAORD GAAD AHV IH', [['LAY', 'C3', 96], ['JAHAHAH', 'D3', 140]]],
   he_shall_turn_the_heart_of_the_fathers_to_the_children: ['m', '/HIY SHAEL TERN DHAX /HAART AHV DHAX FAADHERZ TUW DHAX', [['CHIHL', 'B2', 100], ['DREHEHN', 'G2', 150]]],
 }
-const RECITE = 'D3', SPEED = 82
+const SPEED = 82
+
+// On These Two Hang: mode III, E phrygian. The reciting tone is C, the
+// mode's own tenor; a statement falls through B to A, the Lord's words come
+// home to E, the mode's final, and the questions rise.
+const TWO_HANG = {
+  master_which_is_the_great_commandment_in_the_law: ['m', 'MAESTER WIHCH IHZ DHAX GREYT KAXMAEND', [['MEHNT', 'B2', 96], ['IHN DHAX', 'B2', 110], ['LAOAO', 'D3', 140]]],
+  thou_shalt_love_the_lord_thy_god_with_all_thy_heart: ['m', 'DHAW SHAELT LAHV DHAX LAORD DHAY GAAD WIHDH AOL DHAY', [['/HAA', 'F2', 100], ['AART', 'E2', 150]]],
+  the_second_is_like_unto_it: ['m', 'AEND DHAX SEHKAHND IHZ LAYK AHN', [['TUW', 'B2', 96], ['IHIHT', 'A2', 140]]],
+  thou_shalt_love_thy_neighbour_as_thyself: ['m', 'DHAW SHAELT LAHV DHAY NEYBER AEZ', [['DHAY', 'F2', 100], ['SEHEHLF', 'E2', 150]]],
+  on_these_two_commandments_hang_all_the_law_and_the_prophets: ['m', 'AAN DHIYZ TUW KAXMAENDMEHNTS /HAENX AOL DHAX LAO AEND DHAX', [['PRAA', 'B2', 96], ['FEHEHTS', 'A2', 140]]],
+  eli_eli_lama_sabachthani: ['m', 'IYLAY IYLAY LAAMAA SAABAAK', [['TAA', 'F2', 110], ['NIYIY', 'E2', 160]]],
+  this_man_calleth_for_elias: ['f', 'DHIHS MAEN KAOLEHTH FAOR IH', [['LAY', 'D3', 96], ['AXAXS', 'E3', 140]]],
+  it_is_finished: ['m', 'IHT IHZ', [['FIHN', 'F2', 110], ['IHSHT', 'E2', 150]]],
+  truly_this_was_the_son_of_god: ['m', 'TRUWLIY DHIHS WAAZ DHAX SAHN AHV', [['GAAAAD', 'E2', 160]]],
+  truly_this_was_the_son_of_god_f: ['f', 'TRUWLIY DHIHS WAAZ DHAX SAHN AHV', [['GAAAAD', 'E2', 160]]],
+  if_ye_love_me_keep_my_commandments: ['m', 'IHF YIY LAHV MIY KIYP MAY', [['KAXMAEND', 'F2', 100], ['MEHNTS', 'E2', 150]]],
+}
+
+const TRACKS = {
+  'a-new-song': { lines: NEW_SONG, recite: 'D3' },
+  'on-these-two-hang': { lines: TWO_HANG, recite: 'C3' },
+}
+const TRACK = process.argv[2] || 'a-new-song'
+const { lines: LINES, recite: RECITE } = TRACKS[TRACK]
 
 const render = (ph, midi, speed, v) => {
   const f = HZ(midi), p = Math.max(8, Math.round(K / f))
@@ -78,7 +103,7 @@ const wav = (x) => {
   x.forEach((v, i) => b.writeInt16LE(Math.round(Math.max(-1, Math.min(1, v)) * 32767), 44 + i * 2))
   return b
 }
-const outDir = process.argv[2] || 'docs/assets/music/voices/a-new-song/sam'; fs.mkdirSync(outDir, { recursive: true })
+const outDir = process.argv[3] || `docs/assets/music/voices/${TRACK}/sam`; fs.mkdirSync(outDir, { recursive: true })
 const segments = {}
 const report = {}
 for (const [name, [vk, rec, cad]] of Object.entries(LINES)) {
