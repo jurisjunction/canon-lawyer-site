@@ -14,11 +14,12 @@
 //
 //   npm i --no-save sam-js@0.3.1 && node sam.mjs [track]
 //
-// writes docs/assets/music/voices/<track>/sam/<line>.wav, and segments.json,
+// writes voices/<track>/sam/<line>.wav beside this file, and segments.json,
 // where each line's pitches begin, for ascend.py. The track is a-new-song
 // unless another is named; each track keeps its own lines and mode below.
 import SamJs from 'sam-js'
 import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 const SR = 22050, K = 6805
 const HZ = (m) => 440 * 2 ** ((m - 69) / 12)
 const N = { E2: 40, F2: 41, G2: 43, A2: 45, B2: 47, C3: 48, D3: 50, E3: 52, F3: 53, G3: 55, A3: 57, B3: 59, C4: 60, D4: 62, E4: 64 }
@@ -103,7 +104,7 @@ const wav = (x) => {
   x.forEach((v, i) => b.writeInt16LE(Math.round(Math.max(-1, Math.min(1, v)) * 32767), 44 + i * 2))
   return b
 }
-const outDir = process.argv[3] || `docs/assets/music/voices/${TRACK}/sam`; fs.mkdirSync(outDir, { recursive: true })
+const outDir = process.argv[3] || fileURLToPath(new URL(`./voices/${TRACK}/sam`, import.meta.url)); fs.mkdirSync(outDir, { recursive: true })
 const segments = {}
 const report = {}
 for (const [name, [vk, rec, cad]] of Object.entries(LINES)) {

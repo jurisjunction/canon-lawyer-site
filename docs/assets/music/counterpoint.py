@@ -55,7 +55,7 @@ Standard library only. Dedicated to the public domain (CC0 1.0).
 import itertools, re, sys
 from pathlib import Path
 
-TRACK = Path(__file__).parent / "docs" / "assets" / "music" / "on-these-two-hang.strudel.js"
+TRACK = Path(__file__).parent / "on-these-two-hang.strudel.js"   # beside this file
 
 # ---------------------------------------------------------------- pitch
 STEP_PC = [0, 2, 4, 5, 7, 9, 11]                    # white keys, C to B
