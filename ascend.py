@@ -12,28 +12,36 @@ This is a stand-in for people. When a person records the lines, their voice
 goes in the middle and the choir stays around it; it is never used to make
 anyone's voice say what they did not sing.
 
-    python3 ascend.py      (numpy and scipy; run node sam.mjs first)
+    python3 ascend.py [track]      (numpy and scipy; run node sam.mjs [track] first)
 
-reads docs/assets/music/voices/a-new-song/sam/ and writes the four lines to
-docs/assets/music/voices/a-new-song/ascended/. Deterministic: the choir's
-small detunings come from fixed seeds, so the same input gives the same bytes.
+reads docs/assets/music/voices/<track>/sam/ and writes the lines that ascend
+to docs/assets/music/voices/<track>/ascended/; the track is a-new-song unless
+another is named. Each track sings in its own mode (below). Deterministic: the
+choir's small detunings come from fixed seeds, so the same input gives the
+same bytes.
 """
+import sys
 import json, wave
 from pathlib import Path
 import numpy as np
 from scipy.signal import stft, istft, resample_poly, fftconvolve
 
 SR_IN, SR = 22050, 44100
-MIX = [0, 2, 4, 5, 7, 9, 10]                        # G mixolydian, from G
-def degree(m):                                       # midi -> scale degree (G = 0 at G-1)
+MODES = {                                            # final (pitch class) and steps
+    "a-new-song": (7, [0, 2, 4, 5, 7, 9, 10]),       # G mixolydian, from G
+    "on-these-two-hang": (4, [0, 1, 3, 5, 7, 8, 10]),  # E phrygian, mode III, from E
+}
+TRACK = sys.argv[1] if len(sys.argv) > 1 else "a-new-song"
+FINAL, MIX = MODES[TRACK]
+def degree(m):                                       # midi -> scale degree (the final = 0 at octave -1)
     for d in range(-30, 60):
         o, k = divmod(d, 7)
-        if 7 + 12 * o + MIX[k] == m:
+        if FINAL + 12 * o + MIX[k] == m:
             return d
     raise ValueError(m)
 def midi_of(d):
     o, k = divmod(d, 7)
-    return 7 + 12 * o + MIX[k]
+    return FINAL + 12 * o + MIX[k]
 hz = lambda m: 440 * 2 ** ((m - 69) / 12)
 
 def read(fn):
@@ -94,9 +102,18 @@ def write(fn, y):
     w = wave.open(fn, "wb"); w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
     w.writeframes((np.clip(y, -1, 1) * 32767).astype(np.int16).tobytes()); w.close()
 
-VOICES = Path(__file__).parent / "docs" / "assets" / "music" / "voices" / "a-new-song"
-ASCENDED = ["where_is_the_lord_god_of_elijah", "the_spirit_of_elijah_doth_rest_on_elisha",
-            "things_new_and_old", "he_shall_turn_the_heart_of_the_fathers_to_the_children"]
+VOICES = Path(__file__).parent / "docs" / "assets" / "music" / "voices" / TRACK
+ASCENDS = {
+    "a-new-song": ["where_is_the_lord_god_of_elijah", "the_spirit_of_elijah_doth_rest_on_elisha",
+                   "things_new_and_old", "he_shall_turn_the_heart_of_the_fathers_to_the_children"],
+    # the Lord's words, and the centurion's once the others join him
+    "on-these-two-hang": ["thou_shalt_love_the_lord_thy_god_with_all_thy_heart", "the_second_is_like_unto_it",
+                          "thou_shalt_love_thy_neighbour_as_thyself",
+                          "on_these_two_commandments_hang_all_the_law_and_the_prophets",
+                          "eli_eli_lama_sabachthani", "it_is_finished", "truly_this_was_the_son_of_god",
+                          "if_ye_love_me_keep_my_commandments"],
+}
+ASCENDED = ASCENDS[TRACK]
 
 if __name__ == "__main__":
     segs = json.load(open(VOICES / "sam" / "segments.json"))
