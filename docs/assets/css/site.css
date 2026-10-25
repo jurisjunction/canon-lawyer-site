@@ -380,6 +380,15 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(184,137,63,.
 .map-svg .n-name { font-family: var(--serif); font-size: 19px; fill: var(--ink); }
 .map-svg .node.gap .n-name { fill: var(--muted); }
 .map-svg .n-kind { font-family: var(--sans); font-size: 10.5px; letter-spacing: .07em; fill: var(--muted); }
+/* An essay lifted above the map, outside its order (essay_map.py, "Lifted up"): gold, the household's colour for LIFTED UP. */
+.map-svg .node.reached rect { stroke: #a8740f; stroke-width: 1.4; }
+.map-svg .node.reached:hover rect, .map-svg .node.reached:focus rect { stroke: var(--accent); stroke-width: 1.8; }
+.map-svg.map-faded .node.reached rect { fill: #fbf1dc; }
+.map-svg .lifted .lift-name { font-family: var(--serif); fill: var(--ink); }
+.map-svg .lifted .lift-kind { font-family: var(--sans); fill: #a8740f; }
+.map-svg .lifted .lift-box { transition: stroke .15s; }
+.map-svg .lifted:hover .lift-box, .map-svg .lifted:focus .lift-box { stroke: var(--accent); }
+.map-svg .lifted:focus { outline: none; }
 .map-figure figcaption { font-size: .88rem; color: var(--muted); text-align: center; margin-top: 16px; }
 .field-edges { font-size: .92rem; color: var(--muted) !important; }
 .field-essays { margin: .5em 0 0; padding-left: 1.1em; }
