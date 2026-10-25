@@ -211,11 +211,22 @@ def document(meta, body, domain):
 
 # --- building ------------------------------------------------------------------
 
+def _digest(doc):
+    """The PDF's freshness hash: its source document with this checkout's folder taken out.
+
+    The fonts are linked by absolute file URI, so the folder the site is built in is in
+    the document; hashed as it is, a build from any other folder would find every PDF
+    stale. The folder is replaced by a placeholder before hashing, so the hash depends
+    only on what the PDF says and how it is set."""
+    stable = doc.replace(ROOT.resolve().as_uri(), "file://{ROOT}")
+    return hashlib.sha256(f"{TEMPLATE_VERSION}\n{stable}".encode("utf-8")).hexdigest()
+
+
 def make(meta, body, domain):
     """Build (or keep) the PDF for a writing page. Returns {'url', 'pages'} if current, else None."""
     url, dest = pdf_path(meta)
     doc = document(meta, body, domain)
-    digest = hashlib.sha256(f"{TEMPLATE_VERSION}\n{doc}".encode("utf-8")).hexdigest()
+    digest = _digest(doc)
     entry = _manifest.get(meta["path"])
     if entry and entry.get("hash") == digest and dest.exists():
         return {"url": url, "pages": entry["pages"]}
