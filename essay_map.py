@@ -183,7 +183,8 @@ def map_svg(counts, href=None, label=None, title=None, lifted=None, dim=False):
         s = f["slug"]
         pos[s] = (xs[COLUMN.get(s, 1)], TOP + lay[s] * ROW)
     H = TOP + (max(lay.values()) + 1) * ROW
-    parts = [f'<svg class="map-svg" viewBox="0 0 {W} {H}" role="img" aria-labelledby="map-title">',
+    svg_class = "map-svg map-faded" if dim else "map-svg"
+    parts = [f'<svg class="{svg_class}" viewBox="0 0 {W} {H}" role="img" aria-labelledby="map-title">',
              f'<title id="map-title">{esc(title)}</title>',
              '<defs><marker id="map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
              '<path d="M1 1L9 5L1 9" fill="none" stroke="#a8844c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>']
@@ -218,8 +219,9 @@ def map_svg(counts, href=None, label=None, title=None, lifted=None, dim=False):
                 rect_attrs = rect_attrs.replace('fill="#fffdf9"', f'fill="{GOLD_GROUND}"').replace('fill="none"', f'fill="{GOLD_GROUND}"')
         name_fill = "#5a6273" if gap else "#1c2230"
         fade = ' opacity=".55"' if dim and s not in reach else ""
+        reached = " reached" if s in reach else ""
         parts.append(
-            f'<a class="node{gap}" href="{href(s)}"{fade} aria-label="{esc(f["name"])}: {esc(f["discipline"])}, {caption}">'
+            f'<a class="node{gap}{reached}" href="{href(s)}"{fade} aria-label="{esc(f["name"])}: {esc(f["discipline"])}, {caption}">'
             f'<rect x="{x - BW / 2}" y="{y}" width="{BW}" height="{BH}" rx="9" {rect_attrs}/>'
             f'<text class="n-name" x="{x}" y="{y + 21}" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="19" fill="{name_fill}">{esc(f["name"])}</text>'
             f'<text class="n-kind" x="{x}" y="{y + 37}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10.5" letter-spacing=".07em" fill="#5a6273">{esc((caption if label else f["kind"] + " · " + caption).upper())}</text></a>')
@@ -311,11 +313,11 @@ def _lifted_tree(lifted, pos, xs, BW, BH):
                        f'<circle cx="{end}" cy="{at(s)}" r="3" fill="{GOLD}"/>')
     title = lifted["title"]
     size = 20 if len(title) <= 22 else 16
-    out.append(f'<a class="node lifted" href="{lifted["path"]}" aria-label="{esc(title)}: lifted up, outside the map’s order">'
-               f'<rect x="{lx - LW / 2}" y="{ly}" width="{LW}" height="{LH}" rx="10" fill="{GOLD_GROUND}" stroke="{GOLD}" stroke-width="2.6"/>'
+    out.append(f'<a class="lifted" href="{lifted["path"]}" aria-label="{esc(title)}: lifted up, outside the map’s order">'
+               f'<rect class="lift-box" x="{lx - LW / 2}" y="{ly}" width="{LW}" height="{LH}" rx="10" fill="{GOLD_GROUND}" stroke="{GOLD}" stroke-width="2.6"/>'
                f'<rect x="{lx - LW / 2 + 4}" y="{ly + 4}" width="{LW - 8}" height="{LH - 8}" rx="7" fill="none" stroke="{GOLD}" stroke-width=".8"/>'
-               f'<text class="n-name" x="{lx}" y="{ly + 26}" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="{size}" font-style="italic" fill="#1c2230">{esc(title)}</text>'
-               f'<text class="n-kind" x="{lx}" y="{ly + 43}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" letter-spacing=".08em" fill="{GOLD}">LIFTED UP · ALL HANG ON IT</text></a>')
+               f'<text class="lift-name" x="{lx}" y="{ly + 26}" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="{size}" font-style="italic" fill="#1c2230">{esc(title)}</text>'
+               f'<text class="lift-kind" x="{lx}" y="{ly + 43}" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" letter-spacing=".08em" fill="{GOLD}">LIFTED UP · ALL HANG ON IT</text></a>')
     return out
 
 
