@@ -1169,8 +1169,8 @@ percStaff = \new DrumStaff \with {
     \line { \bold "Percussion (optional, one player)" }
     \wordwrap-string #"Bass drum (soft beater; soft mallets for rolls), woodblock or claves, temple block or side stick, suspended cymbal, one timpano on E, wind machine (or the cymbal). The clock: bass drum on 1 and 3, woodblock in eighths. The hammer: the Morse of “Is not this the carpenter”, a dot a sixteenth, a dash a dotted eighth. Where the track needs more than two hands, the part keeps the bass drum and the hammer (37–40, 65–68; the wheel has the eighths), the cymbal and then the timpani with the temple block in the rent (46, 47), and the bass drum roll at the stone (53). A second player could add the bass drum roll in 46–47 and the temple block in 46."
     \vspace #0.2
-    \line { \bold "Without percussion" }
-    \wordwrap-string #"The music stands, and loses the clock's tick (its eighths stay in the wheel), the hammer, the stutter under the cry, the wind under the crowd, the veil, rocks and timpani of the rent (the organ's low E stays), and the stone."
+    \line { \bold "Without percussion, and in the liturgy" }
+    \wordwrap-string #"The music stands, and loses the clock's tick (its eighths stay in the wheel), the hammer, the stutter under the cry, the wind under the crowd, the veil, rocks and timpani of the rent (the organ's low E stays), and the stone. In the liturgy choir and organ are enough, with bells if there are ringers: the clock lives on in the wheel, which a resonant building may keep on the Gedackt 8' alone, pp, throughout, at quarter = 96 to 104. The lawyer's question (Matthew 22:36) may be read first."
     \vspace #0.2
     \line { \bold "Sections" }
     \wordwrap-string #"I Pendet, bar 1 (0:00) · II Diliges, bar 9 (0:16) · III Simile, bar 25 (0:48) · IV Golgotha, bar 37 (1:12) · V Vere, bar 53 (1:44) · VI Duobus, bar 61 (2:00) · VII Amen, bar 69 (2:16)."

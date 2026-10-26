@@ -1073,9 +1073,12 @@ def preface(E, form_name):
          f"the temple block in the rent ({rent[0] + 1}, {rent[0] + 2}), and the bass drum roll at the stone "
          f"({vere[0] + 1}). A second player could add the bass drum roll in {rent[0] + 1}–{rent[0] + 2} and the temple "
          f"block in {rent[0] + 1}."),
-        ("Without percussion",
+        ("Without percussion, and in the liturgy",
          "The music stands, and loses the clock's tick (its eighths stay in the wheel), the hammer, the stutter under "
-         "the cry, the wind under the crowd, the veil, rocks and timpani of the rent (the organ's low E stays), and the stone."),
+         "the cry, the wind under the crowd, the veil, rocks and timpani of the rent (the organ's low E stays), and the stone. "
+         "In the liturgy choir and organ are enough, with bells if there are ringers: the clock lives on in the wheel, "
+         "which a resonant building may keep on the Gedackt 8' alone, pp, throughout, at quarter = 96 to 104. The "
+         "lawyer's question (Matthew 22:36) may be read first."),
         ("Sections",
          " · ".join(f"{num} {name}, bar {b0 + 1} ({clock(b0)})" for b0, bars, s_, name, num in E.secs) + "."),
     ]
