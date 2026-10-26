@@ -21,9 +21,10 @@
 //     bar (the rolling three-three-two), in place of the offbeats. The
 //     sub is unchanged, and the growl's notes are still the bass
 //     voice's, note for note.
-//   * EUCLID, below, holds the figure; change it to try others
-//     ('3,8,0' is the plain tresillo, '5,8,2' is busier). The first
-//     number is the strokes, the second the steps, the third the turn.
+//   * EUCLID, below, holds the figure, and Strudel's euclidRot plays
+//     it; change it to try others ([3, 8, 0] is the plain tresillo,
+//     [5, 8, 2] is busier). The first number is the strokes, the second
+//     the steps, the third the turn.
 //   * Everything is 3 dB lower than the club form (postgain .7, at the
 //     bottom), because the club form's kick clips when rendered.
 // Otherwise this is the club form as it stands, which is the long form
@@ -340,7 +341,7 @@ const FUNDAMENTUM_TIN = 'g5@2 g5 e5 b5@2 g5 e5 g5@2 g5 g5 e5@2 g5 b5 g5@2 g5 e5 
 // parents: none
 const DUCK = "[.38 .72 1 .88]*4"
 const WORDS = 0 // 1 brings the chanted lines back, filtered and ducked
-const EUCLID = '3,8,1' // strokes, steps, turn: . X . . X . . X
+const EUCLID = [3, 8, 1] // strokes, steps, turn, for euclidRot: . X . . X . . X
 
 // ---------------- THE PERSONS: the choir sings the lines with words, as
 // before; a supersaw pad, creation, doubles every voice and pumps with
@@ -356,7 +357,7 @@ const pad = (x, g = .06) => sung(x).s('supersaw').unison(5).detune(.22).spread(.
   .attack(.04).release(.35).lpf(sine.slow(8).range(900, 2600)).lpq(1.5).gain(g * 3).velocity(DUCK).room(.35).orbit(4)
 const subbass = (x, g = .55) => sung(x).transpose(-12).struct("x*8").s('sine')
   .attack(.004).decay(.18).sustain(.7).release(.06).lpf(200).gain(g).velocity("[.55 1]*4").orbit(4)
-const growl = (x, g = .14) => sung(x).transpose(-12).struct(`[x(${EUCLID})]*2`).s('sawtooth')
+const growl = (x, g = .14) => sung(x).transpose(-12).struct(pure(true).euclidRot(...EUCLID).fast(2)).s('sawtooth')
   .attack(.004).decay(.14).sustain(.15).release(.05).lpf(650).lpq(5).shape(.3).gain(g).pan(.5).orbit(4)
 const satb = (S, A, T, B, g = .22) => stack(
   ...[[S, .62], [A, .42], [T, .56]].filter(([x]) => x).map(([x, p]) => stack(choir(x, p, g), pad(x))),
@@ -390,7 +391,7 @@ const hats = stack(
 )
 const clap = s("~ cp ~ cp").bank('RolandTR909').gain(.5).room(.3).roomsize(2).orbit(1)
 // three in eight, in the clock: a tom, a bar to the figure
-const turn = s(`lt(${EUCLID})`).bank('RolandTR909').gain(.42).lpf(3000).pan(.6).room(.2).orbit(1)
+const turn = s('lt').euclidRot(...EUCLID).bank('RolandTR909').gain(.42).lpf(3000).pan(.6).room(.2).orbit(1)
 const tick = stack(kick, hats, clap, turn)
 const wheel = (cut = 2400, g = .08) => n("0 2 4 2 0 2 4 7").scale(HOME).s('sawtooth')
   .attack(.003).decay(.14).sustain(.15).release(.05)
