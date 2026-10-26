@@ -27,6 +27,43 @@
 
 setcpm(120/4) // the household's tempo
 
+// Every track's samples, loaded here at the top, where Strudel can wait
+// for them (its transpiler awaits each samples() call, and await works
+// only at the top level, not inside a track's own scope).
+samples('shabda/speech/en-GB/f:whether_the_cloud_makes_many_worlds,it_seems_that_it_does,but_the_lord_was_not_in_the_wind,not_in_the_earthquake,not_in_the_fire,and_after_the_fire_a_still_small_voice,i_even_i_only_am_left,yet_i_have_left_me_seven_thousand,let_the_clouds_rain_down_the_just_one,what_hath_god_wrought,the_darkness_shall_not_overcome_it,the_word_was_made_flesh_and_dwelt_among_us,my_end_is_my_beginning')
+samples('shabda/speech/en-GB/m:nothing,it_is_all_made_of_nothing')
+samples('shabda/speech/en-GB/f:what_is_to_be_done,thy_word_is_a_lamp_unto_my_feet,break_the_bread,pass_it_round,write_down_who_was_there')
+samples('shabda/speech/en-GB/m:men_and_brethren_what_shall_we_do,brought_to_them_from_without,is_not_this_the_carpenter,give_us_a_table')
+samples('shabda/speech/en-GB/f:brother_electron,law_reaches_all_the_way_down,as_it_were_a_wheel_in_the_middle_of_a_wheel,praised_be_you_my_lord_through_brother_fire,all_things_have_an_order_among_themselves,where_the_feeble_senses_fail,so_that_finally_god_may_be_all_in_all,the_love_that_moves_the_sun_and_the_other_stars')
+samples('shabda/speech/en-GB/m:have_mercy_on_me,logic_memory_and_time,he_does_not_throw_dice,everything_is_climbing,nothing_was_added_to_the_wind_the_fire_or_the_cloth,not_there,it_held')
+samples({
+  bring_me_a_minstrel: 'sam/bring_me_a_minstrel.wav',
+  o_sing_unto_the_lord_a_new_song: 'sam/o_sing_unto_the_lord_a_new_song.wav',
+  let_a_double_portion_of_thy_spirit_be_upon_me: 'sam/let_a_double_portion_of_thy_spirit_be_upon_me.wav',
+  a_new_man_knows_a_new_song: 'sam/a_new_man_knows_a_new_song.wav',
+  the_singer_himself_is_the_praise: 'sam/the_singer_himself_is_the_praise.wav',
+  where_is_the_lord_god_of_elijah: 'ascended/where_is_the_lord_god_of_elijah.wav',
+  the_spirit_of_elijah_doth_rest_on_elisha: 'ascended/the_spirit_of_elijah_doth_rest_on_elisha.wav',
+  things_new_and_old: 'ascended/things_new_and_old.wav',
+  he_shall_turn_the_heart_of_the_fathers_to_the_children: 'ascended/he_shall_turn_the_heart_of_the_fathers_to_the_children.wav',
+}, 'https://www.canon-lawyer.ca/assets/music/voices/a-new-song/')
+samples({
+  master: 'sam/master_which_is_the_great_commandment_in_the_law.wav',
+  thou_shalt_love_the_lord: 'ascended/thou_shalt_love_the_lord_thy_god_with_all_thy_heart.wav',
+  the_second: 'ascended/the_second_is_like_unto_it.wav',
+  thy_neighbour: 'ascended/thou_shalt_love_thy_neighbour_as_thyself.wav',
+  on_these_two: 'ascended/on_these_two_commandments_hang_all_the_law_and_the_prophets.wav',
+  eli_eli: 'ascended/eli_eli_lama_sabachthani.wav',
+  elias: 'sam/this_man_calleth_for_elias.wav',
+  finished: 'ascended/it_is_finished.wav',
+  truly: 'sam/truly_this_was_the_son_of_god.wav',
+  truly_high: 'sam/truly_this_was_the_son_of_god_f.wav',
+  truly_all: 'ascended/truly_this_was_the_son_of_god.wav',
+  if_ye_love_me: 'ascended/if_ye_love_me_keep_my_commandments.wav',
+}, 'https://www.canon-lawyer.ca/assets/music/voices/on-these-two-hang/')
+samples({ things_new_and_old: 'ascended/things_new_and_old.wav' },
+  'https://www.canon-lawyer.ca/assets/music/voices/a-new-song/')
+
 // ============================================================
 // WHETHER THE CLOUD MAKES MANY WORLDS: the dance mix · 122 BPM · 132 bars
 // parents: none
@@ -69,9 +106,9 @@ const whether_the_cloud = (() => {
   // (its own tempo: 122 BPM; the household keeps one)
 
   // ---- the spoken lines
-  samples('shabda/speech/en-GB/f:whether_the_cloud_makes_many_worlds,it_seems_that_it_does,but_the_lord_was_not_in_the_wind,not_in_the_earthquake,not_in_the_fire,and_after_the_fire_a_still_small_voice,i_even_i_only_am_left,yet_i_have_left_me_seven_thousand,let_the_clouds_rain_down_the_just_one,what_hath_god_wrought,the_darkness_shall_not_overcome_it,the_word_was_made_flesh_and_dwelt_among_us,my_end_is_my_beginning')
+  // (its samples load at the top of the household)
   // the Voice: no name, a man, pitched down
-  samples('shabda/speech/en-GB/m:nothing,it_is_all_made_of_nothing')
+  // (its samples load at the top of the household)
 
   // ============================================================
   // ORBITS: 1 drums · 2 pads and acid (ducked by the kick) ·
@@ -369,8 +406,8 @@ const what_is_to_be_done = (() => {
   // (its own tempo: 132 BPM; the household keeps one)
 
   // ---- the spoken lines
-  samples('shabda/speech/en-GB/f:what_is_to_be_done,thy_word_is_a_lamp_unto_my_feet,break_the_bread,pass_it_round,write_down_who_was_there')
-  samples('shabda/speech/en-GB/m:men_and_brethren_what_shall_we_do,brought_to_them_from_without,is_not_this_the_carpenter,give_us_a_table')
+  // (its samples load at the top of the household)
+  // (its samples load at the top of the household)
 
   // ============================================================
   // ORBITS: 1 drums · 2 guitars and bass · 3 spoken word ·
@@ -680,8 +717,8 @@ const brother_electron = (() => {
   // (its own tempo: 120 BPM; the household keeps one)
 
   // ---- the spoken lines: the readings, and the dead
-  samples('shabda/speech/en-GB/f:brother_electron,law_reaches_all_the_way_down,as_it_were_a_wheel_in_the_middle_of_a_wheel,praised_be_you_my_lord_through_brother_fire,all_things_have_an_order_among_themselves,where_the_feeble_senses_fail,so_that_finally_god_may_be_all_in_all,the_love_that_moves_the_sun_and_the_other_stars')
-  samples('shabda/speech/en-GB/m:have_mercy_on_me,logic_memory_and_time,he_does_not_throw_dice,everything_is_climbing,nothing_was_added_to_the_wind_the_fire_or_the_cloth,not_there,it_held')
+  // (its samples load at the top of the household)
+  // (its samples load at the top of the household)
 
   // ============================================================
   // ORBITS: 1 drums and clock · 2 the chip (square, bass) ·
@@ -1079,17 +1116,7 @@ const a_new_song = (() => {
 
   // the lines, in the order they come: SAM's until the waters, then the
   // choir's (sam.mjs and ascend.py on the site make them)
-  samples({
-    bring_me_a_minstrel: 'sam/bring_me_a_minstrel.wav',
-    o_sing_unto_the_lord_a_new_song: 'sam/o_sing_unto_the_lord_a_new_song.wav',
-    let_a_double_portion_of_thy_spirit_be_upon_me: 'sam/let_a_double_portion_of_thy_spirit_be_upon_me.wav',
-    a_new_man_knows_a_new_song: 'sam/a_new_man_knows_a_new_song.wav',
-    the_singer_himself_is_the_praise: 'sam/the_singer_himself_is_the_praise.wav',
-    where_is_the_lord_god_of_elijah: 'ascended/where_is_the_lord_god_of_elijah.wav',
-    the_spirit_of_elijah_doth_rest_on_elisha: 'ascended/the_spirit_of_elijah_doth_rest_on_elisha.wav',
-    things_new_and_old: 'ascended/things_new_and_old.wav',
-    he_shall_turn_the_heart_of_the_fathers_to_the_children: 'ascended/he_shall_turn_the_heart_of_the_fathers_to_the_children.wav',
-  }, 'https://www.canon-lawyer.ca/assets/music/voices/a-new-song/')
+  // (its samples load at the top of the household)
 
   // ============================================================
   // ORBITS: 1 drums and telegraph · 2 guitar and the chip ·
@@ -1397,23 +1424,9 @@ const on_these_two_hang = (() => {
 
   // the lines, in the order they come: SAM's, then the choir's
   const VOICES = 'https://www.canon-lawyer.ca/assets/music/voices/on-these-two-hang/'
-  samples({
-    master: 'sam/master_which_is_the_great_commandment_in_the_law.wav',
-    thou_shalt_love_the_lord: 'ascended/thou_shalt_love_the_lord_thy_god_with_all_thy_heart.wav',
-    the_second: 'ascended/the_second_is_like_unto_it.wav',
-    thy_neighbour: 'ascended/thou_shalt_love_thy_neighbour_as_thyself.wav',
-    on_these_two: 'ascended/on_these_two_commandments_hang_all_the_law_and_the_prophets.wav',
-    eli_eli: 'ascended/eli_eli_lama_sabachthani.wav',
-    elias: 'sam/this_man_calleth_for_elias.wav',
-    finished: 'ascended/it_is_finished.wav',
-    truly: 'sam/truly_this_was_the_son_of_god.wav',
-    truly_high: 'sam/truly_this_was_the_son_of_god_f.wav',
-    truly_all: 'ascended/truly_this_was_the_son_of_god.wav',
-    if_ye_love_me: 'ascended/if_ye_love_me_keep_my_commandments.wav',
-  }, VOICES)
+  // (its samples load at the top of the household)
   // and one line of the motet's, its own recording: "things new and old"
-  samples({ things_new_and_old: 'ascended/things_new_and_old.wav' },
-    'https://www.canon-lawyer.ca/assets/music/voices/a-new-song/')
+  // (its samples load at the top of the household)
 
   // ============================================================
   // ORBITS: 1 the clock · 2 the wheel · 3 the chanted lines ·
