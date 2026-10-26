@@ -2779,8 +2779,8 @@ percStaff = \new DrumStaff \with {
     \line { \bold "Percussion (optional, one player)" }
     \wordwrap-string #"Bass drum (soft beater; soft mallets for rolls), woodblock or claves, temple block or side stick, suspended cymbal, one timpano on E, wind machine (or the cymbal). The clock: bass drum on 1 and 3, woodblock in eighths. The hammer: the Morse of “Is not this the carpenter”, a dot a sixteenth, a dash a dotted eighth. Where the track needs more than two hands, the part keeps the bass drum and the hammer (93–96, 163–166; the wheel has the eighths), the cymbal and then the timpani with the temple block in the rent (102, 103), and the bass drum roll at the stone (109). A second player could add the bass drum roll in 102–103 and the temple block in 102."
     \vspace #0.2
-    \line { \bold "Without percussion" }
-    \wordwrap-string #"The music stands, and loses the clock's tick (its eighths stay in the wheel), the hammer, the stutter under the cry, the wind under the crowd, the veil, rocks and timpani of the rent (the organ's low E stays), and the stone."
+    \line { \bold "Without percussion, and in the liturgy" }
+    \wordwrap-string #"The music stands, and loses the clock's tick (its eighths stay in the wheel), the hammer, the stutter under the cry, the wind under the crowd, the veil, rocks and timpani of the rent (the organ's low E stays), and the stone. In the liturgy choir and organ are enough, with bells if there are ringers: the clock lives on in the wheel, which a resonant building may keep on the Gedackt 8' alone, pp, throughout, at quarter = 96 to 104. The lawyer's question (Matthew 22:36) may be read first."
     \vspace #0.2
     \line { \bold "Sections" }
     \wordwrap-string #"I Pendet, bar 1 (0:00) · II Diliges, bar 9 (0:16) · III Caput, bar 25 (0:48) · IV Simile, bar 31 (1:00) · V Caput, bar 43 (1:24) · VI Speculum, bar 49 (1:36) · VII Lex, bar 77 (2:32) · VIII Golgotha, bar 93 (3:04) · IX Vere, bar 109 (3:36) · X Caput, bar 117 (3:52) · XI In unum, bar 123 (4:04) · XII Caput, bar 150 (4:58) · XIII Duobus, bar 155 (5:08) · XIV Fundamentum, bar 167 (5:32) · XV Amen, bar 175 (5:48)."
