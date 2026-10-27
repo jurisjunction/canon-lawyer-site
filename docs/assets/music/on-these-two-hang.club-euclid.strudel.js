@@ -25,6 +25,20 @@
 //     it; change it to try others ([3, 8, 0] is the plain tresillo,
 //     [5, 8, 2] is busier). The first number is the strokes, the second
 //     the steps, the third the turn.
+//   * MIRROR = 1 turns every other figure round (rev). Turned round,
+//     this figure is the plain tresillo, X . . X . . X . : its end is
+//     its beginning (Machaut's rondeau, "Ma fin est mon commencement").
+//     The tom turns bar by bar, . X . . X . . X | X . . X . . X . , so
+//     where the figure meets its mirror their strokes touch across the
+//     barline; the growl turns inside each bar, a mirror in a mirror.
+//     Strudel counts each section from its own start, so every section
+//     opens on the turned figure, a stroke on its first beat.
+//   * NEST = 1 composes the figure with itself: three bars in every
+//     eight are the figure's own strokes (counted from each section's
+//     start: its 2nd, 5th and 8th), and in those bars a stab on the
+//     bells' triad (E, G, B) plays the figure again: nine strokes in
+//     sixty-four. With MIRROR on as well, the eights mirror too.
+//   * Both are 0 by default, which is the track as it was recorded.
 //   * Everything is 3 dB lower than the club form (postgain .7, at the
 //     bottom), because the club form's kick clips when rendered.
 // Otherwise this is the club form as it stands, which is the long form
@@ -342,6 +356,15 @@ const FUNDAMENTUM_TIN = 'g5@2 g5 e5 b5@2 g5 e5 g5@2 g5 g5 e5@2 g5 b5 g5@2 g5 e5 
 const DUCK = "[.38 .72 1 .88]*4"
 const WORDS = 0 // 1 brings the chanted lines back, filtered and ducked
 const EUCLID = [3, 8, 1] // strokes, steps, turn, for euclidRot: . X . . X . . X
+const MIRROR = 0 // 1: every other figure turned round (rev): a figure and its mirror
+const NEST = 0   // 1: the figure inside itself: a stab plays it in the figure's own bars
+
+// three in eight, as euclidRot plays it: once a bar (the tom, the stab), or
+// twice a bar in sixteenths (the growl). With MIRROR on, every other figure is
+// turned round, counted from the start of each section, which opens turned.
+const three = pure(true).euclidRot(...EUCLID)
+const threeInBars = MIRROR ? three.firstOf(2, (x) => x.rev()) : three
+const threeInHalves = MIRROR ? three.palindrome().fast(2) : three.fast(2)
 
 // ---------------- THE PERSONS: the choir sings the lines with words, as
 // before; a supersaw pad, creation, doubles every voice and pumps with
@@ -357,7 +380,7 @@ const pad = (x, g = .06) => sung(x).s('supersaw').unison(5).detune(.22).spread(.
   .attack(.04).release(.35).lpf(sine.slow(8).range(900, 2600)).lpq(1.5).gain(g * 3).velocity(DUCK).room(.35).orbit(4)
 const subbass = (x, g = .55) => sung(x).transpose(-12).struct("x*8").s('sine')
   .attack(.004).decay(.18).sustain(.7).release(.06).lpf(200).gain(g).velocity("[.55 1]*4").orbit(4)
-const growl = (x, g = .14) => sung(x).transpose(-12).struct(pure(true).euclidRot(...EUCLID).fast(2)).s('sawtooth')
+const growl = (x, g = .14) => sung(x).transpose(-12).struct(threeInHalves).s('sawtooth')
   .attack(.004).decay(.14).sustain(.15).release(.05).lpf(650).lpq(5).shape(.3).gain(g).pan(.5).orbit(4)
 const satb = (S, A, T, B, g = .22) => stack(
   ...[[S, .62], [A, .42], [T, .56]].filter(([x]) => x).map(([x, p]) => stack(choir(x, p, g), pad(x))),
@@ -391,8 +414,14 @@ const hats = stack(
 )
 const clap = s("~ cp ~ cp").bank('RolandTR909').gain(.5).room(.3).roomsize(2).orbit(1)
 // three in eight, in the clock: a tom, a bar to the figure
-const turn = s('lt').euclidRot(...EUCLID).bank('RolandTR909').gain(.42).lpf(3000).pan(.6).room(.2).orbit(1)
-const tick = stack(kick, hats, clap, turn)
+const turn = s('lt').struct(threeInBars).bank('RolandTR909').gain(.42).lpf(3000).pan(.6).room(.2).orbit(1)
+// the figure inside itself (NEST): in three bars of every eight, the bars of the
+// figure, a stab on the bells' triad plays the figure again
+const stab = note("[e4,g4,b4]").s('supersaw').unison(5).detune(.3)
+  .attack(.002).decay(.18).sustain(0).release(.15).lpf(2400).lpq(5)
+  .gain(.18).room(.4).roomsize(3).pan(.5).orbit(4)
+  .struct(threeInBars).mask(threeInBars.slow(EUCLID[1]))
+const tick = stack(kick, hats, clap, turn, ...(NEST ? [stab] : []))
 const wheel = (cut = 2400, g = .08) => n("0 2 4 2 0 2 4 7").scale(HOME).s('sawtooth')
   .attack(.003).decay(.14).sustain(.15).release(.05)
   .lpf(sine.slow(8).range(cut * .2, cut)).lpq(9).lpenv(3).lpd(.12).shape(.2).gain(g).pan(.4).orbit(2)
