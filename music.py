@@ -34,6 +34,7 @@ TRACKS = [
     ("brother-electron.strudel.js", "Brother Electron", "the clockwork mix", "/essays/brother-electron/"),
     ("a-new-song.strudel.js", "A New Song", "a motet for the household", "/music/"),
     ("on-these-two-hang.strudel.js", "On These Two Hang", "a double fugue", "/music/#the-double-fugue"),
+    ("soap-by-its-causes.strudel.js", "Soap, by Its Causes", "the dub mix", "/essays/soap-by-its-causes/"),
 ]
 EDGE = re.compile(r"^//\s+([\w.-]+\.strudel\.js)\s+([A-Z_]+)\s+([0-9a-f]{12})\s*$", re.M)
 # A track may say, in its header, that the household hangs on it ("// LIFTED UP."):
@@ -196,6 +197,10 @@ const {t['id']} = (() => {{
 
 def household(tracks):
     by_id = [t["id"] for t in tracks]
+    # it plays the track the household hangs on, if one says so; else the youngest
+    lifted = [t["id"] for t in tracks if t["lifted"]]
+    plays = (lifted or by_id)[-1]
+    plays_note = ": the track it hangs on (LIFTED UP)" if lifted else ""
     lines = "\n".join(f"//   {t['id']:<22} {t['title']} ({t['mix']}), {t['bars']} bars" for t in tracks)
     order = [t["file"] for t in tracks]
     sealed = "\n\n".join(seal(t, order) for t in tracks)
@@ -236,9 +241,9 @@ setcpm(120/4) // the household's tempo
 
 {sealed}
 // ============================================================
-// THE HOUSEHOLD PLAYS
+// THE HOUSEHOLD PLAYS{plays_note}
 // ============================================================
-{by_id[-1]}
+{plays}
 """
 
 
