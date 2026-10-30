@@ -347,8 +347,9 @@ WEEKS = {
          "card": "", "note": "The same texts, and the child is not the same reader."},
     38: {"unit": "the-spiral", "title": "Name what’s coming",
          "A": [],
-         "B": [("Name what’s coming", "Tell the child plainly what was left out and that it was deliberate (see the list on the year’s page).")],
-         "card": "", "note": "A spiral admits incompleteness and delivers appetite."},
+         "B": [("Name what’s coming", "Tell the child plainly what was left out and that it was deliberate (see the list on the year’s page)."),
+               ("Going out", "Then take the child to a ballgame, and say nothing about why. Baseball has no game clock: it ends when its end is reached, at the last out, not when time runs out. You score by leaving home, going round, and coming home, as the year left Luke 24 in September and came home to it in June.")],
+         "card": "", "note": "A spiral admits incompleteness and delivers appetite. The season is in full swing in June; any level of ball will do, and a game of catch afterwards is the point."},
 }
 
 # ---------------------------------------------------------------------------------------------------
@@ -391,7 +392,7 @@ MEDIA = {
     35: {"title": "Andrei Rublev", "year": 1966, "how": "the last hour, the casting of the bell, beside Rublev’s icon of the Trinity"},
     36: {"title": "Babette’s Feast", "year": 1987},
     37: {"title": "The Secret of Kells", "year": 2009, "how": "again, as in week 1"},
-    38: {"title": "The Return of the King", "year": 2003, "flag": "PG-13"},
+    38: {"title": "Field of Dreams", "year": 1989, "how": "and then a game of catch; or <em>The Return of the King</em> (2003, rated PG-13), an ending that keeps ending"},
 }
 
 DEFERRED = [
