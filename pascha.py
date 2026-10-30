@@ -17,9 +17,11 @@ Dates are those of 2026-27 (Easter 27-28 March 2027, Year B). In another year th
 """
 import datetime
 import html
+import pathlib
 
 esc = html.escape
 INDEX = "/curriculum/pascha/"
+PLANS = pathlib.Path(__file__).parent / "_src" / "pascha"  # week-<n>.html: a full lesson plan for that week
 FIRST_MONDAY = datetime.date(2026, 9, 14)
 CHRISTMAS_AFTER = 14  # two weeks off after this week
 
@@ -67,6 +69,9 @@ BOOKS = {
     "bibleproject": {"group": "Video", "author": "BibleProject", "title": "Free animated overviews and theme videos",
                      "detail": "bibleproject.com. The catalogue gets reorganized and some theme videos are now folded into longer series, so check each title as you go",
                      "free": "https://bibleproject.com/"},
+    "unlock": {"group": "A game", "title": "Unlock! Kids: Irish Folklore",
+               "detail": "Space Cowboys, a co-operative card game in the manner of an escape room, with three stories after the films of Cartoon Saloon: The Secret of Kells, Song of the Sea and Wolfwalkers. One to four players, ages 6 and up, about twenty minutes a story, with a tutorial first",
+               "weeks": [1, 16, 22], "used": "Played before"},
     "behr": {"group": "For the parent", "author": "John Behr", "title": "The Mystery of Christ: Life in Death",
              "detail": "St Vladimir’s Seminary Press. The theology under the whole method: Christ known from the Cross, the Scriptures read from the end", "for_parent": True},
 }
@@ -176,7 +181,7 @@ WEEKS = {
         "A": [("Luke 24:1–35", "bible"), ("Irenaeus, <em>Against Heresies</em> I.8.1, the mosaic of the king and the fox. Show a mosaic image first; it takes ten seconds", "ah")],
         "B": [("Unanswerable", "What did Jesus actually say on the road? Luke knows and won’t tell us. Why?"),
               ("Video", "<em>The Story of the Bible</em>")],
-        "card": "The road to Emmaus", "note": "Give the image of the mosaic in the first ten minutes of the year. It is the governing image of everything after it."},
+        "card": "The road to Emmaus", "note": "Show the mosaic in week one, after the reading, for ten seconds. It is the governing image of everything after it."},
     2: {"unit": "the-hypothesis", "title": "The envelope",
         "A": [("Luke 24:36–53", "bible"), ("Irenaeus, <em>On the Apostolic Preaching</em> §§1–16: the rule of faith, and creation", "ap")],
         "B": [("The envelope", "The child writes the whole Bible in three sentences, seals it in an envelope, and puts it away until June."),
@@ -351,7 +356,7 @@ WEEKS = {
 # for each choice is the parent's own and is not printed. `flag` marks a rating above PG: watch it first.
 
 MEDIA = {
-    1: {"title": "The Secret of Kells", "year": 2009, "how": "with the Unlock! Kids story of the same name, the weekend before"},
+    1: {"title": "The Secret of Kells", "year": 2009, "how": "with its story in the card game Unlock! Kids: Irish Folklore, the weekend before"},
     2: {"title": "Up", "year": 2009},
     3: {"title": "Arrival", "year": 2016, "flag": "PG-13"},
     4: {"title": "The Tree of Life", "year": 2011, "flag": "PG-13", "how": "the creation sequence only, about twenty minutes"},
@@ -365,13 +370,13 @@ MEDIA = {
     13: {"title": "A Charlie Brown Christmas", "year": 1965},
     14: {"title": "The Man Who Planted Trees", "year": 1987, "how": "Frédéric Back’s short, thirty minutes"},
     15: {"title": "The Prince of Egypt", "year": 1998},
-    16: {"title": "Song of the Sea", "year": 2014, "how": "with the Unlock! Kids story of the same name"},
+    16: {"title": "Song of the Sea", "year": 2014, "how": "with its story in Unlock! Kids: Irish Folklore"},
     17: {"title": "Passio", "year": 1982, "how": "Arvo Pärt’s, a recording; a chant setting of the Passion if it does not hold"},
     18: {"title": "Pinocchio", "year": 1940},
     19: {"title": "The Elephant Man", "year": 1980},
     20: {"title": "The Straight Story", "year": 1999},
     21: {"title": "The Karate Kid", "year": 1984},
-    22: {"title": "Wolfwalkers", "year": 2020, "how": "with the Unlock! Kids story of the same name"},
+    22: {"title": "Wolfwalkers", "year": 2020, "how": "with its story in Unlock! Kids: Irish Folklore"},
     23: {"title": "Chariots of Fire", "year": 1981},
     24: {"title": "Dunkirk", "year": 2017, "flag": "PG-13"},
     25: {"title": "A Man for All Seasons", "year": 1966},
@@ -500,6 +505,16 @@ def _nav(prev_html, next_html, extra=""):
 """
 
 
+def plan(n):
+    """A full lesson plan for week n, if one has been written (_src/pascha/week-<n>.html)."""
+    f = PLANS / f"week-{n}.html"
+    return f.read_text(encoding="utf-8") if f.exists() else None
+
+
+def _plan_mark(n):
+    return ' <span class="reg-inline">lesson plan</span>' if plan(n) else ""
+
+
 def week_page(n):
     w = WEEKS[n]
     u = BY_UNIT[w["unit"]]
@@ -512,19 +527,13 @@ def week_page(n):
     card = f"<h2>The Tile Board</h2><p>Add a card: <strong>{w['card']}</strong>, with the passage and today’s date. Pencil a line to another card only if the child sees one.</p>" if w["card"] else ""
     note = f'<p class="note">{w["note"]}</p>' if w["note"] else ""
     media = _media_html(n)
-    body = f"""<section class="page-head">
-  <div class="wrap narrow">
-    {_crumbs(u)}
-    <p class="eyebrow">Week {n} · {dates(n)} · {esc(season)}</p>
-    <h1>{esc(w['title'])}</h1>
-    <p class="lead">{esc(unit_label(u))}: {u['lead']}</p>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap narrow">
-    <div class="prose">
-      <h2>Session A · the reading</h2>
+    full = plan(n)
+    if full:
+        main = f"""{full}
+      {book_html}"""
+        prose_class = "prose dialogue"
+    else:
+        main = f"""<h2>Session A · the reading</h2>
       <p>About 55 minutes. Open and read aloud before any framing: no introduction, no “today we’re looking at”. Scripture first, then the Father.</p>
       {_read_list(n)}
       <h2>Session B · the argument</h2>
@@ -533,7 +542,21 @@ def week_page(n):
       {card}
       {book_html}
       {media}
-      {note}
+      {note}"""
+        prose_class = "prose"
+    body = f"""<section class="page-head">
+  <div class="wrap narrow">
+    {_crumbs(u)}
+    <p class="eyebrow">Week {n} · {dates(n)} · {esc(season)}{" · the lesson plan" if full else ""}</p>
+    <h1>{esc(w['title'])}</h1>
+    <p class="lead">{esc(unit_label(u))}: {u['lead']}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap narrow">
+    <div class="{prose_class}">
+      {main}
     </div>
   </div>
 </section>
@@ -543,9 +566,13 @@ def week_page(n):
     body += _nav(prev_html, next_html, f'<p><span class="map-nav-label">The unit</span> <a href="{unit_path(u)}">{esc(unit_label(u))}</a></p>')
     meta = {"title": f"Week {n}: {w['title']} · Reading Backwards from the Pascha",
             "crumb": f"Week {n}",
-            "description": f"Week {n} ({dates(n)}) of Reading Backwards from the Pascha, a year of Scripture read from the Easter Vigil: {unit_label(u)}. What to read aloud, what to argue, and the card for the Tile Board.",
+            "description": (f"Week {n} ({dates(n)}) of Reading Backwards from the Pascha, a year of Scripture read from the Easter Vigil: "
+                            + (f"a full lesson plan for a parent, with the reading as lectio divina and the argument step by step. {unit_label(u)}."
+                               if full else f"{unit_label(u)}. What to read aloud, what to argue, and the card for the Tile Board.")),
             "path": week_path(n), "nav": "essays", "kind": "pascha-week",
-            "summary": f"{dates(n)}. {unit_label(u)}."}
+            "summary": f"{dates(n)}. {unit_label(u)}." + (" A full lesson plan." if full else "")}
+    if full:
+        meta["plan"] = True
     return meta, body
 
 
@@ -561,7 +588,7 @@ def unit_page(i):
     span_txt = f"Week {first}" if first == last else f"Weeks {first}–{last}"
     rows = "".join(
         f'<tr><td data-label="Week"><a href="{week_path(n)}">Week {n}</a></td><td data-label="Dates">{dates(n)}</td>'
-        f'<td data-label="Read aloud">{esc(WEEKS[n]["title"])}: {"; ".join(t for t, _ in WEEKS[n]["A"]) or "the liturgy"}</td></tr>'
+        f'<td data-label="Read aloud">{esc(WEEKS[n]["title"])}: {"; ".join(t for t, _ in WEEKS[n]["A"]) or "the liturgy"}{_plan_mark(n)}</td></tr>'
         for n in u["weeks"])
     vigil = '<p class="essay-meta">A reading of the Easter Vigil</p>' if u.get("vigil") else ""
     whatfor = f"<h2>What is it for?</h2><p>{u['whatfor']}</p>" if u["whatfor"] else ""
@@ -630,10 +657,10 @@ def books_page():
                 name = f'<a href="{b["free"]}">{name}</a>'
             detail = f". {b['detail']}" if b.get("detail") else ""
             note = f" {b['note']}" if b.get("note") else ""
-            ws = book_weeks(key)
+            ws = b.get("weeks") or book_weeks(key)
             used = ""
             if ws and key != "bible":
-                used = '<br><span class="field-also">Read in ' + ", ".join(f'<a href="{week_path(n)}">week {n}</a>' for n in ws) + "</span>"
+                used = f'<br><span class="field-also">{b.get("used", "Read in")} ' + ", ".join(f'<a href="{week_path(n)}">week {n}</a>' for n in ws) + "</span>"
             elif key == "bible":
                 used = '<br><span class="field-also">Every week</span>'
             items.append(f'<li id="{key}">{name}{detail}.{note}{used}</li>')
@@ -643,7 +670,7 @@ def books_page():
     {_crumbs()}
     <p class="eyebrow">The books</p>
     <h1>What to buy, and what is free</h1>
-    <p class="lead">A Catholic Bible, five cheap paperbacks, two more in print, and the rest free online. Each book lists the weeks that read from it.</p>
+    <p class="lead">A Catholic Bible, five cheap paperbacks, two more in print, the rest free online, and one game. Each lists the weeks that use it.</p>
   </div>
 </section>
 
@@ -689,7 +716,7 @@ def year_section():
 def calendar_section():
     rows = "".join(
         f'<tr><td data-label="Week"><a href="{week_path(n)}">{n}</a></td><td data-label="Dates">{dates(n)}</td>'
-        f'<td data-label="Unit"><a href="{unit_path(BY_UNIT[WEEKS[n]["unit"]])}">{esc(BY_UNIT[WEEKS[n]["unit"]]["title"])}</a>: {esc(WEEKS[n]["title"])}</td></tr>'
+        f'<td data-label="Unit"><a href="{unit_path(BY_UNIT[WEEKS[n]["unit"]])}">{esc(BY_UNIT[WEEKS[n]["unit"]]["title"])}</a>: {esc(WEEKS[n]["title"])}{_plan_mark(n)}</td></tr>'
         for n in sorted(WEEKS))
     return f"""<table class="deadlines curriculum-table">
         <thead><tr><th>Week</th><th>Dates</th><th>Unit and week</th></tr></thead>

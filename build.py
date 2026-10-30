@@ -467,7 +467,6 @@ def main():
         if not meta.get("noindex"):
             pages.append((meta["path"], meta["modified"]))
             indexed.append(meta)
-    pdfs.finish()
 
     for f in essay_map.FIELDS:
         meta, body = essay_map.field_page(f["slug"], essays, curriculum.field_line(f["slug"], units))
@@ -476,14 +475,19 @@ def main():
         write_page(meta, body)
         pages.append((meta["path"], meta["modified"]))
     # The second track: one page per unit and per week, and the books (pascha.py).
-    pascha_modified = last_modified(ROOT / "pascha.py")
+    pascha_modified = max(last_modified(ROOT / "pascha.py"), last_modified(pascha.PLANS))
     for meta, body in pascha.pages():
         meta["modified"] = pascha_modified
         meta["license"] = "cc0"
+        if meta.get("plan"):  # a week with a full lesson plan gets a PDF to print
+            pdf = pdfs.make(meta, body, CONFIG["domain"])
+            meta["pdf_url"] = pdf["url"] if pdf else None
+            body = pdfs.add_tools(body, pdf)
         body += LICENSE_BAND.replace("this essay", "this page")
         write_page(meta, body)
         pages.append((meta["path"], meta["modified"]))
         indexed.append(meta)
+    pdfs.finish()
     for old, new in REDIRECTS.items():
         d = OUT / old.strip("/") / "index.html"
         d.parent.mkdir(parents=True, exist_ok=True)
