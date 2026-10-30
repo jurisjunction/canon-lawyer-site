@@ -13,6 +13,7 @@ import datetime, html, json, pathlib, re, subprocess
 
 import essay_map  # the map of disciplines the essays are filed on (essay_map.py)
 import curriculum  # the homeschool year that walks the same map (curriculum.py)
+import pascha     # the second track, a year of Scripture read from the Easter Vigil (pascha.py)
 import pdfs       # downloadable PDFs of the writing (pdfs.py; typesetting needs WeasyPrint)
 
 ROOT = pathlib.Path(__file__).parent
@@ -191,6 +192,10 @@ def breadcrumb_jsonld(meta):
         if meta.get("field"):
             f = essay_map.BY_SLUG[meta["field"]]
             crumbs.append((f["name"], f"/essays/{f['slug']}/"))
+    if meta["path"].startswith("/curriculum/") and meta["path"] != "/curriculum/":
+        crumbs.append(("The Benedict Year", "/curriculum/"))
+        if meta["path"].startswith(pascha.INDEX) and meta["path"] != pascha.INDEX:
+            crumbs.append(("Reading Backwards from the Pascha", pascha.INDEX))
     if meta["path"].startswith("/explainers/") and meta["path"] != "/explainers/":
         crumbs.append(("Explainers", "/explainers/"))
     if meta["path"].startswith("/reflections/") and meta["path"] != "/reflections/":
@@ -424,6 +429,10 @@ def main():
             body = body.replace("{{curriculum_units}}", curriculum.units_section(units, essays))
         if meta.get("kind") == "unit":
             body = curriculum.fill_unit(meta, body)
+        for key, fill in (("{{pascha_year}}", pascha.year_section), ("{{pascha_calendar}}", pascha.calendar_section),
+                          ("{{pascha_deferred}}", pascha.deferred_section)):
+            if key in body:
+                body = body.replace(key, fill())
         # Every essay is dedicated to the public domain (CC0), unless its comment block says otherwise.
         if meta.get("kind") == "essay" and meta["path"].startswith("/essays/"):
             meta.setdefault("license", "cc0")
@@ -466,6 +475,15 @@ def main():
         meta["modified"] = max(filed, default=newest_essay)
         write_page(meta, body)
         pages.append((meta["path"], meta["modified"]))
+    # The second track: one page per unit and per week, and the books (pascha.py).
+    pascha_modified = last_modified(ROOT / "pascha.py")
+    for meta, body in pascha.pages():
+        meta["modified"] = pascha_modified
+        meta["license"] = "cc0"
+        body += LICENSE_BAND.replace("this essay", "this page")
+        write_page(meta, body)
+        pages.append((meta["path"], meta["modified"]))
+        indexed.append(meta)
     for old, new in REDIRECTS.items():
         d = OUT / old.strip("/") / "index.html"
         d.parent.mkdir(parents=True, exist_ok=True)
