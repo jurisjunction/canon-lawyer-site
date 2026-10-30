@@ -346,6 +346,49 @@ WEEKS = {
          "card": "", "note": "A spiral admits incompleteness and delivers appetite."},
 }
 
+# ---------------------------------------------------------------------------------------------------
+# One piece of media a week, optional, chosen for the week's shape and never for its subject. The reason
+# for each choice is the parent's own and is not printed. `flag` marks a rating above PG: watch it first.
+
+MEDIA = {
+    1: {"title": "The Secret of Kells", "year": 2009, "how": "with the Unlock! Kids story of the same name, the weekend before"},
+    2: {"title": "Up", "year": 2009},
+    3: {"title": "Arrival", "year": 2016, "flag": "PG-13"},
+    4: {"title": "The Tree of Life", "year": 2011, "flag": "PG-13", "how": "the creation sequence only, about twenty minutes"},
+    5: {"title": "Groundhog Day", "year": 1993},
+    6: {"title": "Ponyo", "year": 2008},
+    7: {"title": "Moana", "year": 2016},
+    9: {"title": "12 Angry Men", "year": 1957},
+    10: {"title": "The Iron Giant", "year": 1999},
+    11: {"title": "Henry V", "year": 1989, "flag": "PG-13", "how": "Kenneth Branagh’s"},
+    12: {"title": "Sleeping Beauty", "year": 1959},
+    13: {"title": "A Charlie Brown Christmas", "year": 1965},
+    14: {"title": "The Man Who Planted Trees", "year": 1987, "how": "Frédéric Back’s short, thirty minutes"},
+    15: {"title": "The Prince of Egypt", "year": 1998},
+    16: {"title": "Song of the Sea", "year": 2014, "how": "with the Unlock! Kids story of the same name"},
+    17: {"title": "Passio", "year": 1982, "how": "Arvo Pärt’s, a recording; a chant setting of the Passion if it does not hold"},
+    18: {"title": "Pinocchio", "year": 1940},
+    19: {"title": "The Elephant Man", "year": 1980},
+    20: {"title": "The Straight Story", "year": 1999},
+    21: {"title": "The Karate Kid", "year": 1984},
+    22: {"title": "Wolfwalkers", "year": 2020, "how": "with the Unlock! Kids story of the same name"},
+    23: {"title": "Chariots of Fire", "year": 1981},
+    24: {"title": "Dunkirk", "year": 2017, "flag": "PG-13"},
+    25: {"title": "A Man for All Seasons", "year": 1966},
+    27: {"title": "The Lion, the Witch and the Wardrobe", "year": 2005},
+    28: {"title": "The Sixth Sense", "year": 1999, "flag": "PG-13"},
+    29: {"title": "O Brother, Where Art Thou?", "year": 2000, "flag": "PG-13"},
+    30: {"title": "Ratatouille", "year": 2007},
+    31: {"title": "Of Gods and Men", "year": 2010, "flag": "PG-13"},
+    32: {"title": "The Miracle Worker", "year": 1962},
+    33: {"title": "Kiki’s Delivery Service", "year": 1989},
+    34: {"title": "WALL-E", "year": 2008},
+    35: {"title": "Andrei Rublev", "year": 1966, "how": "the last hour, the casting of the bell, beside Rublev’s icon of the Trinity"},
+    36: {"title": "Babette’s Feast", "year": 1987},
+    37: {"title": "The Secret of Kells", "year": 2009, "how": "again, as in week 1"},
+    38: {"title": "The Return of the King", "year": 2003, "flag": "PG-13"},
+}
+
 DEFERRED = [
     ("The David saga", "1 Samuel through 1 Kings 2, with Robert Alter: the anointed king who suffers, betrayed by his own, going up the Mount of Olives weeping and barefoot."),
     ("Paul", "Romans whole, Galatians, 1 Corinthians. The child has had Romans 6 and 8 and 1 Corinthians 10 and 11 as fragments."),
@@ -468,6 +511,7 @@ def week_page(n):
             f'<li><a href="{INDEX}books/#{b}">{esc(_book_name(b))}</a></li>' for b in books) + "</ul>"
     card = f"<h2>The Tile Board</h2><p>Add a card: <strong>{w['card']}</strong>, with the passage and today’s date. Pencil a line to another card only if the child sees one.</p>" if w["card"] else ""
     note = f'<p class="note">{w["note"]}</p>' if w["note"] else ""
+    media = _media_html(n)
     body = f"""<section class="page-head">
   <div class="wrap narrow">
     {_crumbs(u)}
@@ -488,6 +532,7 @@ def week_page(n):
       {_b_list(n)}
       {card}
       {book_html}
+      {media}
       {note}
     </div>
   </div>
@@ -648,6 +693,39 @@ def calendar_section():
         for n in sorted(WEEKS))
     return f"""<table class="deadlines curriculum-table">
         <thead><tr><th>Week</th><th>Dates</th><th>Unit and week</th></tr></thead>
+        <tbody>{rows}</tbody>
+      </table>"""
+
+
+def _media_line(n):
+    m = MEDIA.get(n)
+    if not m:
+        return ""
+    out = f"<em>{esc(m['title'])}</em> ({m['year']})"
+    if m.get("how"):
+        out += f", {m['how']}"
+    if m.get("flag"):
+        out += f". Rated {m['flag']}: watch it first"
+    return out
+
+
+def _media_html(n):
+    if n in (8, 26):
+        return "<h2>Optional: one piece of media</h2><p>None this week. " + ("Let the chapter stand." if n == 8 else "Go to things.") + "</p>"
+    line = _media_line(n)
+    if not line:
+        return ""
+    return (f"<h2>Optional: one piece of media</h2><p>{line}. Watched together, with nothing said about why it was chosen; "
+            f'<a href="{INDEX}#media">how the list was made</a>.</p>')
+
+
+def media_section():
+    rows = "".join(
+        f'<tr><td data-label="Week"><a href="{week_path(n)}">{n}</a></td><td data-label="The week">{esc(WEEKS[n]["title"])}</td>'
+        f'<td data-label="Watch">{_media_line(n) or ("Nothing: let the chapter stand" if n == 8 else "Nothing: go to things")}</td></tr>'
+        for n in sorted(WEEKS))
+    return f"""<table class="deadlines curriculum-table">
+        <thead><tr><th>Week</th><th>The week</th><th>Watch</th></tr></thead>
         <tbody>{rows}</tbody>
       </table>"""
 

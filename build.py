@@ -430,7 +430,7 @@ def main():
         if meta.get("kind") == "unit":
             body = curriculum.fill_unit(meta, body)
         for key, fill in (("{{pascha_year}}", pascha.year_section), ("{{pascha_calendar}}", pascha.calendar_section),
-                          ("{{pascha_deferred}}", pascha.deferred_section)):
+                          ("{{pascha_deferred}}", pascha.deferred_section), ("{{pascha_media}}", pascha.media_section)):
             if key in body:
                 body = body.replace(key, fill())
         # Every essay is dedicated to the public domain (CC0), unless its comment block says otherwise.
