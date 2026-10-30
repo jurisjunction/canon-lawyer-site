@@ -14,6 +14,7 @@ import datetime, html, json, pathlib, re, subprocess
 import essay_map  # the map of disciplines the essays are filed on (essay_map.py)
 import curriculum  # the homeschool year that walks the same map (curriculum.py)
 import pascha     # the second track, a year of Scripture read from the Easter Vigil (pascha.py)
+import workshop   # the workshop strand: Nand to Tetris, Part I, beside the year's units (workshop.py)
 import pdfs       # downloadable PDFs of the writing (pdfs.py; typesetting needs WeasyPrint)
 
 ROOT = pathlib.Path(__file__).parent
@@ -196,6 +197,8 @@ def breadcrumb_jsonld(meta):
         crumbs.append(("The Benedict Year", "/curriculum/"))
         if meta["path"].startswith(pascha.INDEX) and meta["path"] != pascha.INDEX:
             crumbs.append(("Reading Backwards from the Pascha", pascha.INDEX))
+        if meta["path"].startswith(workshop.INDEX) and meta["path"] != workshop.INDEX:
+            crumbs.append(("The workshop", workshop.INDEX))
     if meta["path"].startswith("/explainers/") and meta["path"] != "/explainers/":
         crumbs.append(("Explainers", "/explainers/"))
     if meta["path"].startswith("/reflections/") and meta["path"] != "/reflections/":
@@ -429,6 +432,9 @@ def main():
             body = body.replace("{{curriculum_units}}", curriculum.units_section(units, essays))
         if meta.get("kind") == "unit":
             body = curriculum.fill_unit(meta, body)
+            body = body.replace("{{workshop}}", workshop.unit_section(meta["field"]))
+        if "{{workshop_plan}}" in body:
+            body = body.replace("{{workshop_plan}}", workshop.plan_section(units))
         for key, fill in (("{{pascha_year}}", pascha.year_section), ("{{pascha_calendar}}", pascha.calendar_section),
                           ("{{pascha_deferred}}", pascha.deferred_section), ("{{pascha_media}}", pascha.media_section)):
             if key in body:
@@ -483,6 +489,15 @@ def main():
             pdf = pdfs.make(meta, body, CONFIG["domain"])
             meta["pdf_url"] = pdf["url"] if pdf else None
             body = pdfs.add_tools(body, pdf)
+        body += LICENSE_BAND.replace("this essay", "this page")
+        write_page(meta, body)
+        pages.append((meta["path"], meta["modified"]))
+        indexed.append(meta)
+    # The workshop strand: one page per project (workshop.py).
+    workshop_modified = max(last_modified(ROOT / "workshop.py"), last_modified(workshop.VIDEO_FILE))
+    for meta, body in workshop.pages(units):
+        meta["modified"] = workshop_modified
+        meta["license"] = "cc0"
         body += LICENSE_BAND.replace("this essay", "this page")
         write_page(meta, body)
         pages.append((meta["path"], meta["modified"]))
