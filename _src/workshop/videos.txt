@@ -1,0 +1,49 @@
+Q3jDqSNpPDI|1:43|0.0|Introduction
+X4qU9s702z4|10:39|0.1|The Road Ahead
+trH-RVmDmrY|8:00|0.2|From Nand to Hack
+cyOLwxfV-NI|3:04|0.3|From Hack to Tetris
+gNj008tcSV4|3:18|0.4|Project 0 Overview
+wHShpaB1UsQ|12:27|1.1|Boolean Logic
+_k9vv-0ETdg|9:50|1.2|Boolean Functions Synthesis
+oqWwP9oXpIo|10:06|1.3|Logic Gates
+l9aEUI6OKDg|18:29|1.4|Hardware Description Language
+iMP2-jco2t4|33:54|1.5|Hardware Simulation
+0BHB7_N6Lws|8:54|1.6|Multi-Bit Buses
+lV4OeJD7Z-Q|24:39|1.7|Project 1 Overview
+2c-ys-nzfO4|9:45|1.8|Perspectives
+fbT9MLKxG00|7:47|2.1|Binary Numbers
+RkFeIGukf-Y|12:13|2.2|Binary Addition
+qrUjFtZZWf4|11:10|2.3|Negative Numbers
+xRmxYxQpjWU|16:47|2.4|Arithmetic Logic Unit
+ImirkZCxhNM|7:47|2.5|Project 2 Overview
+L1DqmHKFWec|10:35|2.6|Perspectives
+43GZ1M7vLXk|9:46|3.1|Sequential Logic
+4uwKOIutyYw|15:43|3.2|Flip Flops
+uaYIJt4WDzE|25:41|3.3|Memory Units
+7Tfiu6hLohA|10:17|3.4|Counters
+8rgcJTRNWMk|10:54|3.5|Project 3 Overview
+tFkvLsiXoc4|11:40|3.6|Perspectives
+MsX8iUXf4Lw|12:00|4.1|Machine Languages: Overview
+aNmOvG7AWqY|16:58|4.2|Machine Languages: Elements
+utXYCwk9eJc|15:48|4.3|The Hack Computer and Machine Language
+urCkuCVfe_8|10:18|4.4|Hack Language Specification
+hBj-b-kp8ew|26:32|4.5|Input/Output
+q2pmTPcbV9I|24:50|4.6|Hack Programming, Part 1
+QEQYVMMhQWw|21:16|4.7|Hack Programming, Part 2
+oQTbIscNipg|32:16|4.8|Hack Programming, Part 3
+0pnkVgkCg1s|19:04|4.9|Project 4 Overview
+A1wDhnVszWY|7:38|4.10|Perspectives
+tM_QIEO6sz8|9:08|5.1|Von Neumann Architecture
+g8JaCyKgPK0|8:19|5.2|The Fetch-Execute Cycle
+sS3GP6p2L_Q|27:27|5.3|Central Processing Unit
+any2bT7GV0I|28:00|5.4|The Hack Computer
+wRtO2_tyCXE|12:47|5.5|Project 5 Overview
+AXe449l_m_w|9:01|5.6|Perspectives
+0QZb1a7pFiI|15:29|6.1|Assembly Languages and Assemblers
+yrTLvYbX-aE|9:05|6.2|The Hack Assembly Language
+QEogkfmnAlw|11:29|6.3|The Assembly Process: Handling Instructions
+UgT9GEjxDLk|20:14|6.4|The Assembly Process: Handling Symbols
+G1znpVOJJJw|13:57|6.5|Developing a Hack Assembler
+XRJt_aFMpSw|32:12|6.6|Project 6 Overview: Programming Option
+ksxhJOJCdUQ|9:28|6.6B|Project 6 Overview: Without Programming
+IN1W7X83QJ8|11:13|6.7|Perspectives

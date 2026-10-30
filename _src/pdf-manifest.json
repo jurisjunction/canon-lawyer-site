@@ -12,43 +12,43 @@
   "pages": 13
  },
  "/curriculum/act/": {
-  "hash": "f811e1de4aa60e7741048ac3fc37884f304f42cfd45da5a35019debc96061210",
+  "hash": "1e04bf40d96acdcea47df1723500b111733a9b6d45e092efe763c1a37b915721",
   "pages": 2
  },
  "/curriculum/being/": {
-  "hash": "cd09423da2788d7fa8d7e02de2f75de91cebee6dfe88d1abd2f723f3fee3c27e",
+  "hash": "c335cbbe4d7ed8cc53380a7912670c355bb0c1fe4a22afe2780ef4a22409415a",
   "pages": 2
  },
  "/curriculum/city/": {
-  "hash": "7b40c1cfaaace33b6992cf570631369177577b30acb09a8fab8fac3e7863d2a0",
+  "hash": "7166983e9bea94a8b5326a111eb4443b8404db6c0746e8f60b9d32dd2c49df48",
   "pages": 2
  },
  "/curriculum/for-parents/": {
-  "hash": "510bf0fc0fdd54fdff912956acd46b2c99cacc191c3babc44f9b16eccbdd032c",
+  "hash": "f33412f9b14a0547c76c94351724196c98363bcec4ce9c7c8dddb0e47764b30e",
   "pages": 7
  },
  "/curriculum/god/": {
-  "hash": "29dca3bbca5dd60c97bef036e0512906f09f6703807951e996dcd479dcb7ebcb",
+  "hash": "bbd9f3e5289cc457b34bdedd5bd3a3db89196128ad124b4ad0d6287287b18b40",
   "pages": 2
  },
  "/curriculum/law/": {
-  "hash": "bd8aaf9dc297df4119e54c084f6f44fe92a0d0a16b521acab1591483bff76185",
+  "hash": "1873d61e16e24537e7dfa04038332150eacf3213900788cdf4dea5bb218d50ac",
   "pages": 2
  },
  "/curriculum/making/": {
-  "hash": "b1f90ba98a3515e9ff555a15edb9b8ff77d8046bbff1d1d893615a44b255c8dd",
+  "hash": "ebe33cab1c8d0a601733de033fad75f4eb0cc04e75bb2d8b027d31d64c633f19",
   "pages": 2
  },
  "/curriculum/memory/": {
-  "hash": "a4228373d66950f889352ff110850837296f8c7ad6fecea24bec5cb3b58566d4",
+  "hash": "71461484dee167c819cf4db96cba9d28d2011444109562992ce9e8265c3f899c",
   "pages": 2
  },
  "/curriculum/nature/": {
-  "hash": "9f320dd3261582ec8c1ade38ca618b808654e90622bc460e0477a175e5cfa07a",
+  "hash": "e8e8fea04c0afe87b00d56997bbd2be08fc0f453e398e6134e8e8129305e6e61",
   "pages": 2
  },
  "/curriculum/number/": {
-  "hash": "143bc13f6b136fa5e1e1e4aa242899701aa423f4c1ec7820c9e87f96139dc4a9",
+  "hash": "0fb88d1cd97d43dcf9c1612882ef59d530298109b86560ea46d86c9bb01164e7",
   "pages": 2
  },
  "/curriculum/pascha/": {
@@ -60,15 +60,19 @@
   "pages": 9
  },
  "/curriculum/person/": {
-  "hash": "778050778f377e66d42d0562fe417b90729ea9727012fd7c3116fa48d21673fe",
+  "hash": "260c677a36605dfb45838d3919c5664da461ff40e18ca87c8024e937b7376b3f",
   "pages": 2
  },
  "/curriculum/reading/": {
-  "hash": "e22cd1d924d78ff4a27bf150d93b95f3ed60914ac4e5229d64a064a30e37492f",
+  "hash": "c7346132f247fd303c7a9a137cad95fa8e002b69bd0b05f6da2e9a68a4056b02",
   "pages": 2
  },
+ "/curriculum/workshop/": {
+  "hash": "62bf031e40eecdfe0c147c91badbbc6411eaaf5be9d908397c2318dd566071ff",
+  "pages": 3
+ },
  "/curriculum/worship/": {
-  "hash": "eb6ef63bdab2187847c74189d210f646c9999797f5e95a504e7193b4b580dd45",
+  "hash": "396809ab160f88c00d35705c0834f4620ee42cdb741365104ede45ceda9bd4f6",
   "pages": 2
  },
  "/essays/a-people-that-made-itself/": {

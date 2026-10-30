@@ -1,0 +1,94 @@
+<!--
+title: Setting up the workshop: Nand to Tetris for ages 10 to 13
+crumb: Setting up
+description: A setup guide for a child of 10 to 13 starting Nand to Tetris in the Benedict Year: the free online IDE, where the work is kept, a first look around the Hardware Simulator, the lectures, and the house rules. No account, no install, no Coursera.
+path: /curriculum/workshop/setup/
+nav: essays
+-->
+<section class="page-head">
+  <div class="wrap narrow">
+    <p class="crumbs"><a href="/curriculum/">The Benedict Year</a> › <a href="/curriculum/workshop/">The workshop</a></p>
+    <p class="eyebrow">The workshop · before Project 0 is finished</p>
+    <h1>Setting up the bench</h1>
+    <p class="lead">This page is for you, the one building the computer. Do it with a parent the first time. It takes about half an hour, and you only do it once.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap narrow">
+    <div class="prose">
+      <h2>What you need</h2>
+      <ul>
+        <li><strong>A computer with a keyboard:</strong> a laptop, a desktop or a Chromebook. A phone is too small, and a tablet is hard work without a keyboard.</li>
+        <li><strong>A web browser.</strong> Chrome, Chromium, Edge or Brave is best, because they can keep your work in a folder on the computer (step 2). Firefox and Safari work too, and keep your work inside the browser instead.</li>
+        <li><strong>A notebook and a pencil,</strong> and some graph paper. Every chip starts on paper.</li>
+        <li><strong>Nothing else.</strong> No account, no password, no download to install, no money.</li>
+      </ul>
+
+      <h2>Step 1 · Open the workshop</h2>
+      <ol>
+        <li>Go to <a href="https://nand2tetris.github.io/web-ide/" rel="noopener"><code>nand2tetris.github.io/web-ide</code></a> and bookmark it. This is the IDE (the “integrated development environment”): every tool you need for the whole year, in one web page.</li>
+        <li>A notice at the bottom asks about analytics, which only counts visits. Click <strong>Reject</strong>. Everything works the same.</li>
+        <li>You are now in the <strong>Hardware Simulator</strong>, where you will build most of your chips. The row of small icons along the top switches between the tools. The ones you will use this year are the Hardware Simulator, the CPU Emulator (Project 4) and the Assembler (Project 6). Hover over an icon to see its name.</li>
+      </ol>
+
+      <h2>Step 2 · Decide where your work is kept</h2>
+      <p>The IDE saves as you type. The question is where. Open <strong>Settings</strong> (the gear icon near the top right) and look under <em>Project files</em>.</p>
+      <h3>The better way: a folder on the computer</h3>
+      <p>For Chrome, Chromium, Edge or Brave. Your chips are ordinary files you can see, copy and back up, and clearing the browser cannot lose them.</p>
+      <ol>
+        <li>In Settings, choose <strong>Use Desktop Storage</strong>.</li>
+        <li>Click <strong>Download the projects folder</strong>. Save the file, then unzip it into a folder you will remember, for example a folder called <code>nand2tetris</code> in your Documents.</li>
+        <li>Click <strong>Select Projects Folder</strong> and choose that folder. Your browser asks whether this page may see and save files there. Say yes. If it asks again on another day, say yes again.</li>
+      </ol>
+      <h3>The simple way: inside the browser</h3>
+      <p>For any browser, and what the IDE does if you change nothing. Your chips live inside the browser on this computer.</p>
+      <ul>
+        <li>Never click <strong>Reset browser storage files</strong> in Settings. It wipes your work.</li>
+        <li>If anyone clears this browser’s history and site data, your work goes with it. Tell the family.</li>
+        <li>Every Friday, make a backup: in the Hardware Simulator, use the download button beside the chip list (it says <em>Download all files in this folder into a zip</em>) and keep the zip.</li>
+      </ul>
+
+      <h2>Step 3 · Look around</h2>
+      <p>Open the Hardware Simulator, choose <strong>Project 1</strong> from the list at the top, and then <strong>And</strong> from the list beside it. Don’t build anything yet. Just find these four things:</p>
+      <ol>
+        <li><strong>The HDL editor</strong>, at the top. HDL is the language you describe a chip in. The grey lines starting with <code>//</code> are comments for people, and the computer ignores them. Your work goes where the file says to put your code.</li>
+        <li><strong>The pins</strong>, in the middle: the chip’s inputs and outputs. Click an input to switch it between 0 and 1.</li>
+        <li><strong>The test</strong>, at the bottom. Every chip comes with a test script and a compare file, which holds the right answers. The arrow buttons step through the test one line at a time, or run it all. When it finishes, the IDE says whether your chip’s output matched, and the <em>Diff Table</em> shows any row that did not.</li>
+        <li><strong>The Builtin switch</strong>, beside “HDL”. It swaps your chip for the course’s own ready-made one. That is handy for seeing what a chip should do, but turn it off before you test yours, or you are testing theirs.</li>
+      </ol>
+      <p>The line at the very bottom tells you if your HDL has a mistake in it. Read it slowly; it usually says which line.</p>
+
+      <h2>Step 4 · The lectures</h2>
+      <p>Each project page lists its lectures in the order to watch them, with their lengths. They are the course’s own, by Professors Nisan and Schocken, and they were filmed with an older version of the tools. The buttons look different from the IDE you have, but the ideas are exactly the same. Watch with your parent, one or two at a sitting, and stop the video whenever you want to try something on paper.</p>
+
+      <h2>Step 5 · Your notebook</h2>
+      <p>Before each chip, write its truth table in your notebook and work out on paper how to build it. Only then type it in. When a chip will not pass, go back to the paper, not to the internet. Keep everything: the wrong tries too. They are part of how you got there.</p>
+
+      <h2>The rules of the bench</h2>
+      <ol>
+        <li><strong>Don’t look up answers.</strong> Every answer to every chip is online somewhere. Building the chip is the point, and a copied chip teaches nothing. If you land on a page of answers by accident, close it and tell your parent. Saying so is worth more than the chip.</li>
+        <li><strong>Being stuck is part of the work.</strong> Most chips take more than one try, and Mux takes almost everyone a while. Ask a person. Sleep on it.</li>
+        <li><strong>Your work stays at home.</strong> Don’t post your chips anywhere public. The course’s authors ask everyone not to, so that the next person can build them too.</li>
+        <li><strong>A pass is a pass.</strong> The test cannot be argued with, and neither can a fail. That is what makes it fair.</li>
+      </ol>
+
+      <h2>If something goes wrong</h2>
+      <ul>
+        <li><strong>My work disappeared.</strong> Open Settings and check which storage is chosen. If you use a folder, make sure it is the same folder as before.</li>
+        <li><strong>The test fails and I don’t know why.</strong> Open the Diff Table, find the first row that is wrong, and work that row out by hand on paper.</li>
+        <li><strong>The page looks broken.</strong> Reload it. Your work is saved.</li>
+        <li><strong>Something else.</strong> Ask your parent before you search for it.</li>
+      </ul>
+
+      <h2>For the parent</h2>
+      <div class="note">
+        <p>Nothing in the strand needs an account, a password or an email address: not the IDE, and not the lectures. The IDE is the course’s own free, open-source tool, published on GitHub. It runs in the browser, and your child’s work stays on your computer.</p>
+        <p>The lectures are on YouTube. Signed out, YouTube still shows other videos and comments beside them, so sit with your child for them, or use a privacy-respecting front end such as FreeTube (computer) or NewPipe (Android). See <a href="/curriculum/workshop/">the strand’s page</a> for more.</p>
+        <p>If you ever need to work with no internet connection, the course also offers its older desktop tools, which need Java installed (on Linux Mint, the package <code>default-jre</code>). They are on the course’s <a href="https://www.nand2tetris.org/software" rel="noopener">software page</a>. The online IDE is what the course now recommends, and what this guide assumes.</p>
+      </div>
+
+      <p class="more"><a href="/curriculum/workshop/project-0/">Next: Project 0, the workbench →</a></p>
+    </div>
+  </div>
+</section>
