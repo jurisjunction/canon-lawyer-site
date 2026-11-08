@@ -120,6 +120,8 @@ h1 { font-size: 27pt; font-weight: 500; line-height: 1.1; margin: 0 0 10pt; stri
 .prose h2 { font-size: 15.5pt; font-weight: 500; line-height: 1.2; margin: 20pt 0 7pt; break-after: avoid; }
 .prose h3 { font-size: 12.5pt; font-weight: 500; margin: 14pt 0 5pt; break-after: avoid; }
 .prose ul, .prose ol { margin: 0 0 10pt; padding-left: 1.2em; }
+.prose ol[type="a"] { list-style-type: lower-alpha; }
+.prose ol[type="i"] { list-style-type: lower-roman; }
 .prose li { margin: 0 0 4pt; }
 .prose p.qn { padding-left: 1.6em; text-align: left; }
 .prose .note { font-size: 10pt; line-height: 1.45; text-align: left; background: #efe9de; padding: 8pt 10pt; border-radius: 3pt; }
