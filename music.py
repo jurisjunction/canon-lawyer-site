@@ -35,6 +35,7 @@ TRACKS = [
     ("a-new-song.strudel.js", "A New Song", "a motet for the household", "/music/"),
     ("on-these-two-hang.strudel.js", "On These Two Hang", "a double fugue", "/music/#the-double-fugue"),
     ("soap-by-its-causes.strudel.js", "Soap, by Its Causes", "the dub mix", "/essays/soap-by-its-causes/"),
+    ("ad-te-levavi.strudel.js", "Ad te levavi", "the night watch", "/music/#ad-te-levavi"),
 ]
 EDGE = re.compile(r"^//\s+([\w.-]+\.strudel\.js)\s+([A-Z_]+)\s+([0-9a-f]{12})\s*$", re.M)
 # A track may say, in its header, that the household hangs on it ("// LIFTED UP."):
