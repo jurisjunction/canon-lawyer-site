@@ -158,6 +158,11 @@ Every essay under /essays/ and every page of the homeschool curriculum is dedica
 Scores and recordings that belong to the essays, public domain (CC0 1.0) with them. Each track quotes its parents; they sing together at https://www.canon-lawyer.ca/music/.
 
 - [a-new-song.strudel.js](https://www.canon-lawyer.ca/assets/music/a-new-song.strudel.js): the score, as code: paste it into https://strudel.cc and press play
+- [ad-te-levavi-vigil-mix.flac](https://www.canon-lawyer.ca/assets/music/ad-te-levavi-vigil-mix.flac): a recording of the score (lossless FLAC)
+- [ad-te-levavi-vigil-mix.mp3](https://www.canon-lawyer.ca/assets/music/ad-te-levavi-vigil-mix.mp3): a recording of the score (MP3)
+- [ad-te-levavi-vigil-mix.ogg](https://www.canon-lawyer.ca/assets/music/ad-te-levavi-vigil-mix.ogg): a recording of the score (Ogg Vorbis)
+- [ad-te-levavi.club.strudel.js](https://www.canon-lawyer.ca/assets/music/ad-te-levavi.club.strudel.js): the score, as code: paste it into https://strudel.cc and press play
+- [ad-te-levavi.strudel.js](https://www.canon-lawyer.ca/assets/music/ad-te-levavi.strudel.js): the score, as code: paste it into https://strudel.cc and press play
 - [ascend.py](https://www.canon-lawyer.ca/assets/music/ascend.py)
 - [brother-electron-clockwork-mix.flac](https://www.canon-lawyer.ca/assets/music/brother-electron-clockwork-mix.flac): a recording of the score (lossless FLAC)
 - [brother-electron-clockwork-mix.jpg](https://www.canon-lawyer.ca/assets/music/brother-electron-clockwork-mix.jpg): the video's poster frame
