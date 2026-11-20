@@ -1,7 +1,7 @@
 // ============================================================
 // AD TE LEVAVI — the vigil mix
 // The night watch, on the floor · F sharp mixolydian x melodic techno
-// 128 BPM · 144 bars · ~4:30, then it loops
+// 128 BPM · 164 bars · ~5:08, then it loops
 // For Strudel (https://strudel.cc): paste, press play (Ctrl+Enter).
 // Dedicated to the public domain (CC0 1.0).
 //
@@ -10,7 +10,8 @@
 // room full of people who are not asleep, so this is the club mix of
 // the night watch (ad-te-levavi.strudel.js, beside this file): the
 // same Sunday, the same four watches, the same chants and the same
-// parents, with a kick under them.
+// parents, with a kick under them, and at the end one hymn that the
+// night watch does not have.
 //   at even              the introit    Ad te levavi animam meam
 //   at midnight          the gradual    Universi qui te exspectant
 //   at the cockcrowing   the alleluia   Ostende nobis, Domine
@@ -41,12 +42,27 @@
 //   * The drop is the morning. The sun comes up, the hook is wide
 //     open, and in its second half the communion is sung over it,
 //     with the Rorate from above at "et terra nostra".
+//   * After the word, the answer, and the peak of the track. Mark's
+//     chapter ends on "Watch". The Bible ends on "Come": "Even so,
+//     come, Lord Jesus" (Revelation 22:20). So when the word has been
+//     said, the floor sings "Veni, veni Emmanuel", verse and refrain,
+//     over the tenor's final, held. The verse rises a line at a time
+//     under a cloud of fifths whose filter opens as it goes. At
+//     "Gaude" the cloud breaks: the drums fall away, and the two held
+//     "Gaude"s are sung in the clear, two octaves high, with bells.
+//     Then the kick comes back under "Emmanuel", and the refrain is
+//     sung over the whole floor. The hymn is never ducked; everything
+//     else stands back for it. It is in the first mode, on D, so it
+//     ends on the fifth above the floor: the note the stabs have held
+//     over every G all night.
 //
 // What the drop is not. It is the morning watch, not the last day:
 // "The night is far spent, the day is at hand" (Romans 13:12). The
-// master does not come back in these 144 bars. "Of that day and that
+// master does not come back in these 164 bars. "Of that day and that
 // hour knoweth no man" (Mark 13:32), so the track keeps no date for
-// it. It loops, and the floor watches again.
+// it. Nor does the hymn bring him. "Veni" is a petition, and its
+// refrain is a promise in the future tense: "nascetur pro te", "shall
+// be born for thee". It loops, and the floor watches again.
 //
 // PARENTS. The tracks, like the essays, form a DAG, and a track
 // carries its parents in its own material. From the cloud track: the
@@ -64,6 +80,14 @@
 // and are sung a semitone down. They are read from the same books as
 // in the night watch, which names them.
 //
+// THE HYMN has no parent in the household, and it is not a chant of
+// the Mass. Its tune comes from a French processional of the
+// fifteenth century, where it was sung at burials; Thomas Helmore
+// joined it to the Advent hymn in the 1850s. The words were printed at
+// Cologne in 1710 and are made from the O Antiphons of the last week
+// of Advent. It is written here as the hymnals have it, set on D, the
+// final of the first mode, where the gradual and the communion stand.
+//
 // TIMELINE (bar / time):
 //   HOUSE       1  0:00  kick and Morse key, to mix in on; the master
 //                        leaves; the moon and the stars come out
@@ -78,8 +102,14 @@
 //   RENT      103  3:11  from the top to the bottom; then nothing
 //   MORNING   105  3:15  the drop: the hook wide open; from bar 121
 //                        the communion over it, and from bar 126 the
-//                        Rorate above; the tenor comes home at 132
-//   tail      137  4:15  kick and key, to mix out on; half a verse of
+//                        Rorate above; the tenor comes home at 132;
+//                        in bar 136 the word is said
+//   VENI      137  4:15  a bar of roll, and the answer spoken; from
+//                        138 "Veni, veni Emmanuel", rising a line at a
+//                        time under the cloud; at 150 and 151 the two
+//                        "Gaude"s in the clear, no drums; at 152 the
+//                        kick returns under "Emmanuel" to the end
+//   tail      157  4:52  kick and key, to mix out on; half a verse of
 //                        Psalm 80 on the introit's psalm tone
 //
 // The spoken lines come from Shabda's text-to-speech and load the
@@ -88,14 +118,14 @@
 
 setcpm(128/4) // one cycle = one bar = 1.875 seconds
 
-// ---- the spoken lines: Mark 13:31, 35-37; Psalm 80:3
-samples('shabda/speech/en-GB/m:watch,at_even,at_midnight,at_the_cockcrowing,in_the_morning,ye_know_not_when_the_master_of_the_house_cometh,lest_coming_suddenly_he_find_you_sleeping,heaven_and_earth_shall_pass_away,but_my_words_shall_not_pass_away,turn_us_again_o_god_and_cause_thy_face_to_shine')
+// ---- the spoken lines: Mark 13:31, 35-37; Psalm 80:3; Revelation 22:20
+samples('shabda/speech/en-GB/m:watch,at_even,at_midnight,at_the_cockcrowing,in_the_morning,ye_know_not_when_the_master_of_the_house_cometh,lest_coming_suddenly_he_find_you_sleeping,heaven_and_earth_shall_pass_away,but_my_words_shall_not_pass_away,turn_us_again_o_god_and_cause_thy_face_to_shine,even_so_come_lord_jesus')
 
 // ============================================================
 // ORBITS: 1 the clocks, the hands and the key · 2 the tenor, as bass
 //         and bare · 3 the spoken lines · 4 the chants · 5 the rent,
 //         the riser, the ground · 6 bells and the heavens · 7 the
-//         hook, the stabs and the pads
+//         hook, the stabs, the pads and the lead
 // ============================================================
 
 // ---------------- ROOTS
@@ -159,6 +189,29 @@ const OSTENDE = 'c4@2 c4 b3 d4 c4 c4@2 c4 c4 c4@3 ~@3 b3 c4 d4 c4 a3 c4 a3 b3 c4
 // dabit fructum suum": eleven bars
 const DOMINUS_DABIT = 'f3 f3 f3 a3 g3 g3 a3 f3 e3 f3 e3 d3 c3 d3 c3@2 f3 f3 f3 g3 f3 d3 f3@2 g3 a3 a3 c4 b3 d4 c4 a3 b3 b3 a3@2 ~@4 a3@2 g3 a3 g3 e3 f3 g3 a3 g3 g3@3 ~@3 a3 f3 a3 g3 a3 f3 e3 d3 d3 f3 d3 d3 c3 f3 g3 e3 d3 f3 g3 f3 e3 f3 d3 e3 d3 d3@3 ~@4'
 
+// ---------------- THE HYMN, which the night watch does not have
+
+// "Veni, veni Emmanuel", mode I, set on D like the gradual and the
+// communion, with the mode's B flat. It is a hymn and keeps a hymn's
+// time: every note a beat, the last of each line three, and each line
+// beginning on the upbeat. No note is changed.
+// parents: none (it is new to the household)
+// for: VENI
+// the verse, "Veni, veni Emmanuel, captivum solve Israel, qui gemit
+// in exsilio, privatus Dei Filio": twelve bars
+const VENI = 'd3@2 f3@2 a3@2 a3@2 a3@2 g3@2 bb3@2 a3@2 g3@2 f3@6 ' +
+             'g3@2 a3@2 f3@2 d3@2 f3@2 g3@2 e3@2 d3@2 c3@2 d3@6 ' +
+             'g3@2 g3@2 d3@2 d3@2 e3@2 f3@4 e3@2 d3@2 c3@6 ' +
+             'f3@2 g3@2 a3@2 a3@2 a3@2 g3@2 bb3@2 a3@2 g3@2 f3@6'
+// the refrain, "Gaude, gaude! Emmanuel nascetur pro te, Israel": seven
+const GAUDE = 'c4@2 c4@6 a3@2 a3@6 a3@2 g3@2 bb3@2 a3@2 g3@2 f3@6 ' +
+              'g3@2 a3@2 f3@2 d3@2 f3@2 g3@2 e3@2 d3@2 c3@2 d3@6'
+// a line set on its upbeat: three beats of rest before it, so that
+// its first note is the last beat of a bar; and one beat after
+const upbeat = (line) => '~@6 ' + line + ' ~@2'
+// verse and refrain run on, as they are sung: twenty bars
+const HYMN = upbeat(VENI + ' ' + GAUDE)
+
 // ---------------- THE MEASURES: the three clocks, and the hands
 
 // THE SUN: four to the floor.
@@ -207,11 +260,11 @@ const shaken = (g = .12) => note("[f#2,c#3]*16").s('sawtooth').lpf(700)
 
 // ---------------- THE TENOR: the introit, one note to a bar
 
-// The floor stands on it for 120 bars: its 116 notes, and its final
-// held four bars more.
+// The floor stands on it for 140 bars: its 116 notes, its final held
+// four bars more, and held again for twenty under the hymn.
 // parents: THE INTROIT
 const NOTES = TENOR.split(' ')
-const FLOOR = [...NOTES, 'g3', 'g3', 'g3', 'g3']
+const FLOOR = [...NOTES, ...Array(24).fill('g3')]
 // a run of the floor as one note a bar: from which note, for how many
 // bars; f rewrites each note (into a chord, or another octave)
 const run = (from, bars, f = (x) => x) => mini('<' + FLOOR.slice(from, from + bars).map(f).join(' ') + '>')
@@ -220,7 +273,7 @@ const tenorLine = (from, bars) => note(run(from, bars)).transpose(DOWN - 12)
 // AS BASS: a sawtooth rolling in sixteenths off the kick, and a sub on
 // the offbeats an octave below (the two lowest notes stay up, where a
 // room can still hear them).
-// for: EVENING, MIDNIGHT, MORNING
+// for: EVENING, MIDNIGHT, MORNING, VENI
 const bass = (from, bars, cut = 700, g = .3) => stack(
   tenorLine(from, bars).struct("[~ x x x]*4").s('sawtooth')
     .attack(.004).decay(.11).sustain(.2).release(.04)
@@ -284,7 +337,7 @@ const key = (g = .34) => s(mini(iso(TALEA, ['rim']))).slow(4).bank('RolandTR909'
 // THE HOOK: the first fourteen notes of the introit in the rhythm of
 // WATCH, an octave up, with a dotted echo. cut is the filter.
 // parents: THE MORSE, THE WORD, THE INTROIT
-// for: EVENING, the end of MIDNIGHT, the roll, MORNING
+// for: EVENING, the end of MIDNIGHT, the roll, MORNING, VENI
 const HOOK = iso(TALEA, NOTES.slice(0, 14))
 const hook = (cut = 3600, g = .24) => note(mini(HOOK)).slow(4).transpose(DOWN + 12)
   .s('supersaw').unison(5).detune(.22).spread(.7)
@@ -302,6 +355,14 @@ const reeds = (p, g = .16) => p.s('gm_church_organ').lpf(1400).release(.4)
   .gain(g).room(.6).orbit(4)
 const pipe = (p, g = .3) => p.s('gm_recorder').release(.3)
   .gain(g).room(.6).delay(.3).delaytime(DOTTED).delayfeedback(.4).orbit(4)
+
+// THE LEAD: the hook's own saw, held, for the refrain of the hymn. It
+// does not pump: the kick ducks for nothing in the refrain.
+// parents: none
+// for: VENI
+const lead = (p, g = .3) => p.s('supersaw').unison(7).detune(.18).spread(.9)
+  .attack(.02).decay(.3).sustain(.8).release(.6).lpf(7000).lpq(1)
+  .gain(g).delay(.35).delaytime(DOTTED).delayfeedback(.45).room(.7).roomsize(6).orbit(7)
 
 // THE ACID: the gradual at chant speed through a resonant filter that
 // opens and closes over eight bars. cut is how far it opens.
@@ -467,7 +528,7 @@ const secRENT = stack(
 // word the key has been tapping all night is said once.
 // parents: THE TENOR, ORGANUM, THE HOOK, THE COMMUNION, THE INTROIT,
 //          THE CHOIR, THE HEAVENS, THE GROUND, THE KEY, THE WORD
-// for: THE WORD (here it is said); and the tail
+// for: THE WORD (here it is said); and VENI, which answers it
 const secMORNING = stack(
   stack(
     sun, moon, stars(), hands, key(.4),
@@ -491,7 +552,61 @@ const secMORNING = stack(
   arrange([31, silence], [1, stack(vox("watch"), bell(.2).struct("x ~ ~ ~"))]),
 )
 
-// VII. THE TAIL. Eight bars to mix out on: the kick and the key. The
+// VII. VENI: the peak. The word has been said, and this is the
+// answer. Mark's chapter ends on "Watch"; the Bible ends on "Come"
+// (Revelation 22:20). One bar of roll, with the answer spoken over
+// it, and on its last beat the hymn's upbeat.
+// The verse, twelve bars: the groove comes back held down, and the
+// choir sings over it, louder at every line; the octave joins at the
+// second line. Under them a cloud of fifths, its filter opening as
+// the verse goes on, and a riser through the last line.
+// The light, two bars: on the upbeat to "Gaude" the drums fall away.
+// The two held "Gaude"s are sung in the clear, the choir at full
+// voice, the lead and the celesta two octaves up, the fifths an
+// octave up and wide open, a bell on each.
+// The refrain, five bars: the kick comes back under "Emmanuel", with
+// the crash, and the refrain is sung over the whole floor. The hook is
+// under it, quiet: "watch" and "rejoice" at once. The hymn ends on D,
+// the fifth above the floor. Nothing has arrived. "Nascetur": he
+// shall be born.
+// parents: THE HYMN, THE TENOR (its final), ORGANUM, THE HOOK, THE
+//          CHOIR, THE LEAD, THE ROLL, THE RISER, THE BELL, THE POWERS,
+//          the clocks, THE HANDS, THE KEY
+// for: the tail
+// the groove, bar by bar: off for the roll, on for the verse, cut on
+// the upbeat to "Gaude", off for the two "Gaude"s, back for the rest
+const CLOUD = "<0 1!11 [1 1 1 0] 0 0 1!5>"
+// the hymn's loudness, bar by bar: it rises a line at a time, is
+// loudest in the clear, and stays above the floor to the end
+const RISING = "<.46!4 .5!3 .54!3 .58!3 .7!2 .64!5>"
+const OCTAVE = "<0!4 .18!3 .24!3 .3!3 .42!2 .36!5>"
+const secVENI = stack(
+  arrange([1, stack(roll, riser(1), vox("even_so_come_lord_jesus", 1.2))], [19, silence]),
+  // the floor, held back so that the hymn stands over it
+  stack(sun, moon, stars(), hands, key(.34), bass(120, 20, 900, .28)).mask(CLOUD),
+  arrange([1, silence], [12, stabs(121, 12, .15)], [2, silence], [5, stabs(135, 5, .16)]).mask(CLOUD),
+  crash.mask(onBars(20, 2, 16)),
+  // the cloud: the fifths held, opening through the verse
+  arrange([1, silence], [12, pad(121, 12, saw.slow(12).range(300, 2600), .14)], [7, silence]).mask(CLOUD),
+  arrange([9, silence], [4, riser(4).mask("<1 1 1 [1 1 1 0]>")], [7, silence]),
+  // the light: the fifths an octave up, wide open; a bell on each "Gaude"
+  arrange([13, silence], [7, pad(133, 7, 9000, .13).transpose(12)]),
+  stack(powers(.07), bell(.2).struct("x ~ ~ ~")).mask(onBars(20, 14, 15)),
+  // into the return: a half bar of roll, and the riser
+  arrange([14, silence], [1, stack(riser(1), roll.mask("[0 1]"))], [5, silence]),
+  // THE HYMN, never ducked
+  choir(sing(HYMN), RISING, 0),
+  choir(sing(HYMN).transpose(12), OCTAVE, 0),
+  // from "Gaude": two octaves up, on the lead and the celesta
+  arrange([12, silence], [8, stack(
+    lead(sing(upbeat(GAUDE)).transpose(24), .3),
+    sing(upbeat(GAUDE)).transpose(24).s('gm_celesta').gain(.22).room(.7).roomsize(6).orbit(6),
+  )]),
+  // after the light: the pump and the hook, quiet, under the refrain
+  arrange([15, silence], [5, stack(gate(135, 5, .12), hook(5200, .08))]),
+)
+
+// VIII. THE TAIL. Eight bars to mix out on: the kick and the key. The
 // responsorial psalm on the introit's own psalm tone: "Turn us again,
 // O God, and cause thy face to shine". A verse has two halves and
 // this is the first; "and we shall be saved" is not sung. Then the
@@ -516,5 +631,6 @@ arrange(
   [22, secCOCKCROW],
   [2,  secRENT],
   [32, secMORNING],
+  [20, secVENI],
   [8,  secTAIL],
 )
